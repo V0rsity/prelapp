@@ -26,3 +26,5 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     </AuthProvider>
   );
 }
+
+// To start npm run dev

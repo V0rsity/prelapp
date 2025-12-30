@@ -1,0 +1,554 @@
+:root {
+    --color-red: #ef4444;
+    --color-orange: #f97316;
+    --color-yellow: #eab308;
+    --color-light-green: #84cc16;
+    --color-green: #22c55e;
+}
+
+/* Reset body and html */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Mobile View (Default) */
+#mobile {
+  display: block; 
+}
+
+#desktop {
+  display: none;
+}
+
+/* Desktop View (Min-width 1024px) */
+@media (min-width: 1024px) {
+  #desktop {
+    display: block; 
+  }
+  #mobile {
+    display: none;
+  }
+}
+
+
+/* Dashboard Wrapper */
+.dashboard-wrapper {
+  min-height: 100vh;
+  background: #BDDDFC;
+  padding-bottom: 80px;
+  margin: 0;
+  width: 100%;
+}
+
+/* Dashboard Mobile Layout */
+#topbar {
+  background: #384959;
+  padding: .3rem .6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#topbar img {
+  height: 72px;
+  width: auto;
+}
+
+#topbar button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Main Container */
+.main-container {
+  background: #5d7994; /* 6A89A7 */
+  padding: .5rem;
+  border-radius: 1rem;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Heading */
+.main-heading {
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.main-heading h1 {
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.main-heading h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Submit Button */
+.submit-button {
+  background: #384959;
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin: .75rem;
+}
+
+.submit-button:hover {
+  background: #222d37;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  background: #384959;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem 0;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin: 0;
+  width: 100%;
+}
+
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  transition: opacity 0.2s;
+}
+
+.bottom-nav button:hover {
+  opacity: 0.8;
+}
+
+.bottom-nav button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bottom-nav button span {
+  font-size: 0.7rem;
+}
+
+/* Active tab indicator */
+.bottom-nav button.active {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+/* Menu Container */
+.menu-container {
+  position: relative;
+}
+
+/* Popup Menu */
+.popup-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  width: 8rem;
+  padding: .5rem 0rem;
+}
+
+.popup-menu button {
+  display: block;
+  width: 100%;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: white;
+  border: none;
+  color: #4a5568;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: grey;
+}
+
+.popup-menu p {
+    color: grey;
+    margin: 0;
+    font-size: large;
+}
+
+.popup-menu button:hover {
+  background-color: #f7fafc;
+}
+
+.popup-menu button:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Metrics Container */
+.metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Metric Item */
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metric-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.metric-icon {
+  color: #FFFFFF;
+}
+
+/* Slider Container */
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Slider Styling */
+.metric-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.metric-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #384959;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.metric-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.metric-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #384959;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.metric-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Slider Labels */
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0 0.25rem;
+}
+
+/* Color classes for slider values */
+.slider-value-1::-webkit-slider-thumb {
+  background: var(--color-red); /* Red */
+}
+
+.slider-value-1::-moz-range-thumb {
+  background: var(--color-red); /* Red */
+}
+
+.slider-value-2::-webkit-slider-thumb {
+  background: var(--color-orange); /* Orange */
+}
+
+.slider-value-2::-moz-range-thumb {
+  background: var(--color-orange); /* Orange */
+}
+
+.slider-value-3::-webkit-slider-thumb {
+  background: var(--color-yellow); /* Yellow */
+}
+
+.slider-value-3::-moz-range-thumb {
+  background: var(--color-yellow); /* Yellow */
+}
+
+.slider-value-4::-webkit-slider-thumb {
+  background: var(--color-light-green); /* Light Green */
+}
+
+.slider-value-4::-moz-range-thumb {
+  background: var(--color-light-green); /* Light Green */
+}
+
+.slider-value-5::-webkit-slider-thumb {
+  background: var(--color-green); /* Green */
+}
+
+.slider-value-5::-moz-range-thumb {
+  background: var(--color-green); /* Green */
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.next-button {
+  margin-left: auto;
+}
+
+/* Back Button */
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin: .75rem;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Notes Container */
+.notes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 0.5rem;
+  flex: 1;
+}
+
+.notes-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Notes Textarea */
+.notes-textarea {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #384959;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 200px;
+  box-sizing: border-box;
+}
+
+.notes-textarea::placeholder {
+  color: rgba(56, 73, 89, 0.5);
+}
+
+.notes-textarea:focus {
+  outline: 2px solid #384959;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 1);
+}
+
+/* History Section */
+.log-card{
+  padding: 0 1rem, 1rem, 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.history-log .main-heading {
+  padding-bottom: 0;
+}
+
+.history-log h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0;
+}
+
+.history-section{
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.readiness-badge {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: .5rem;
+  padding: .5rem .25rem;
+}
+
+.readiness-label {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.readiness-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.readiness-badge[data-readiness="green"] .readiness-score {
+  border: .5rem solid var(--color-green);
+}
+
+.readiness-badge[data-readiness="light-green"] .readiness-score {
+  border: .5rem solid var(--color-light-green);
+}
+
+.readiness-badge[data-readiness="yellow"] .readiness-score {
+  border: .5rem solid var(--color-yellow);
+}
+
+.readiness-badge[data-readiness="orange"] .readiness-score {
+  border: .5rem solid var(--color-orange);
+}
+
+.readiness-badge[data-readiness="red"] .readiness-score {
+  border: .5rem solid var(--color-red);
+}
+
+/* Desktop View (Min-width 1024px) */
+@media (min-width: 1024px) {
+  .main-content {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: stretch;
+    width: 25%;
+  }
+  .desktop-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.history-section .metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem .2rem;
+  justify-items: stretch;
+}
+
+.history-section .metric-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.history-section .metric-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.history-section .metric-label {
+  font-size: 1.2rem;
+}
+
+.log-notes {
+  margin: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.notes-label {
+  font-weight: 600;
+  font-size: 1.2rem;
+}

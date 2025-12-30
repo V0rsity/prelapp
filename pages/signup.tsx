@@ -1,9 +1,8 @@
+// pages/signup.tsx
 import { useState, useContext, useEffect } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../firebase";
 import { useRouter } from "next/router";
 import { AuthContext } from "../context/AuthContext";
-import { doc, setDoc } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 
 export default function Signup() {
   const router = useRouter();
@@ -14,7 +13,9 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone); // default
+  const [timezone, setTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -35,16 +36,29 @@ export default function Signup() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        firstName,
-        lastName,
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
-        timezone,
-        createdAt: new Date(),
-        isPremium: false,
+        password,
       });
+
+      if (authError) throw authError;
+
+      if (!authData.user) {
+        throw new Error("User creation failed");
+      }
+
+      // Create user profile in database
+      const { error: dbError } = await supabase
+        .from("users")
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          timezone,
+        })
+        .eq('id', authData.user.id);
+
+      if (dbError) throw dbError;
 
       router.push("/dashboard");
     } catch (err: any) {
@@ -68,7 +82,11 @@ export default function Signup() {
         value={lastName}
         onChange={(e) => setLastName(e.target.value)}
       />
-      <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input 
+        placeholder="Email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+      />
       <input
         placeholder="Password"
         type="password"

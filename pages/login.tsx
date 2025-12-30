@@ -1,24 +1,34 @@
+// pages/login.tsx
 import { useState, useContext, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
 import { useRouter } from "next/router";
 import { AuthContext } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) router.push("/dashboard");
   }, [user, router]);
 
   const handleLogin = async () => {
+    setError("");
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
       router.push("/dashboard");
-    } catch (err) {
+    } catch (err: any) {
+      setError(err.message || "Login failed.");
       console.error(err);
     }
   };
@@ -26,7 +36,13 @@ export default function Login() {
   return (
     <div>
       <h1>Login</h1>
-      <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      
+      <input 
+        placeholder="Email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+      />
       <input
         placeholder="Password"
         type="password"
