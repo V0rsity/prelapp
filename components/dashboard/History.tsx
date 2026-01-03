@@ -49,57 +49,89 @@ export default function History({ dailyLogs, userProfile }: Props) {
             
             <div className="log-card">
               <div className="grid-container">
-                <div className="metrics-grid">
+                <div className="metrics-grid" style={{ "--rows": 5 } as React.CSSProperties}> {/* May set --rows dynamically later. */}
+                  {/* Column-first flow (top→bottom then next column) */}
                   <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}></span>
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}
+                    ></span>
                     <span className="metric-label">Sleep {log.sleep_morning}/5</span>
                   </div>
-                  
+
                   <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.quad_morning)})` }}></span>
-                    <span className="metric-label">Quads {log.quad_morning}/5</span>
-                  </div>
-                  
-                  <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.energy_morning)})` }}></span>
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.energy_morning)})` }}
+                    ></span>
                     <span className="metric-label">Energy {log.energy_morning}/5</span>
                   </div>
-                  
+
                   <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hamstring_morning)})` }}></span>
-                    <span className="metric-label">Hamstring {log.hamstring_morning}/5</span>
-                  </div>
-                  
-                  <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.stress_morning)})` }}></span>
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.stress_morning)})` }}
+                    ></span>
                     <span className="metric-label">Stress {log.stress_morning}/5</span>
                   </div>
-                  
+
                   <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hip_morning)})` }}></span>
-                    <span className="metric-label">Hips {log.hip_morning}/5</span>
-                  </div>
-                  
-                  <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}></span>
-                    <span className="metric-label">Hydration {log.hydration_morning}/5</span>
-                  </div>
-                  
-                  <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.calf_morning)})` }}></span>
-                    <span className="metric-label">Calves {log.calf_morning}/5</span>
-                  </div>
-                  
-                  <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.nutrition_morning)})` }}></span>
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.nutrition_morning)})` }}
+                    ></span>
                     <span className="metric-label">Nutrition {log.nutrition_morning}/5</span>
                   </div>
-                  
+
                   <div className="metric-item">
-                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.shin_morning)})` }}></span>
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}
+                    ></span>
+                    <span className="metric-label">Hydration {log.hydration_morning}/5</span>
+                  </div>
+
+                  <div className="metric-item">
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.quad_morning)})` }}
+                    ></span>
+                    <span className="metric-label">Quads {log.quad_morning}/5</span>
+                  </div>
+
+                  <div className="metric-item">
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.hamstring_morning)})` }}
+                    ></span>
+                    <span className="metric-label">Hamstring {log.hamstring_morning}/5</span>
+                  </div>
+
+                  <div className="metric-item">
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.hip_morning)})` }}
+                    ></span>
+                    <span className="metric-label">Hips {log.hip_morning}/5</span>
+                  </div>
+
+                  <div className="metric-item">
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.calf_morning)})` }}
+                    ></span>
+                    <span className="metric-label">Calves {log.calf_morning}/5</span>
+                  </div>
+
+                  <div className="metric-item">
+                    <span
+                      className="metric-dot"
+                      style={{ backgroundColor: `var(--color-${getColorForScore(log.shin_morning)})` }}
+                    ></span>
                     <span className="metric-label">Shins {log.shin_morning}/5</span>
                   </div>
                 </div>
+
               </div>
             </div>
             {log.notes_morning && (
