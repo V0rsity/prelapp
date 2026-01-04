@@ -8,9 +8,10 @@ import { calculateReadinessScore } from "../../utils/readinessScore";
 interface MorningReadinessProps {
   onComplete: () => void;
   currentDate: string;
+  userProfile: any;
 }
 
-export default function MorningReadiness({ onComplete, currentDate }: MorningReadinessProps) {
+export default function MorningReadiness({ onComplete, currentDate, userProfile }: MorningReadinessProps) {
   const { user } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,7 +97,7 @@ export default function MorningReadiness({ onComplete, currentDate }: MorningRea
   return (
     <div className="main-container">
       <div className="main-heading">
-        <h1>Hi, Luke!</h1>
+        <h1>Hi, {userProfile?.first_name || 'there'}!</h1>
         <h3>How are you feeling this morning?</h3>
       </div>
 
@@ -164,8 +165,8 @@ export default function MorningReadiness({ onComplete, currentDate }: MorningRea
                   className={`metric-slider slider-value-${stress}`}
                 />
                 <div className="slider-labels">
-                  <span>Low</span>
                   <span>High</span>
+                  <span>Low</span>
                 </div>
               </div>
             </div>
@@ -355,7 +356,7 @@ export default function MorningReadiness({ onComplete, currentDate }: MorningRea
           <div className="notes-container">
             <label className="notes-label">
               <NotebookPen size={20} className="metric-icon" />
-              <span>Notes (Optional)</span>
+              <span>Notes</span>
             </label>
             <textarea
               value={notes}

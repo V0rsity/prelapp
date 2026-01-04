@@ -157,7 +157,7 @@ export default function Dashboard() {
     return <div className="loading-content"></div>;
   }
 
-  const props = { dailyLogs, userProfile } as any;
+  const props = { dailyLogs, userProfile, refreshUserData } as any;
   // It is important that this always returns all the tabs so the state is saved between them!
   return (
     <>

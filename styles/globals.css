@@ -566,3 +566,188 @@ html, body {
   font-size: 1.25rem;
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Morning Overview Styles */
+.morning-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.morning-overview .main-heading {
+  padding: .25rem;
+}
+
+.morning-overview .main-heading h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: white;
+}
+
+/* Readiness Score Card */
+.morning-overview .readiness-score-card {
+  background: #587087;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.morning-overview .readiness-score-card h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+.morning-overview .score-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.score-display[data-readiness="green"] .readiness-score {
+  border: .5rem solid var(--color-green);
+}
+
+.score-display[data-readiness="light-green"] .readiness-score {
+  border: .5rem solid var(--color-light-green);
+}
+
+.score-display[data-readiness="yellow"] .readiness-score {
+  border: .5rem solid var(--color-yellow);
+}
+
+.score-display[data-readiness="orange"] .readiness-score {
+  border: .5rem solid var(--color-orange);
+}
+
+.score-display[data-readiness="red"] .readiness-score {
+  border: .5rem solid var(--color-red);
+}
+
+.morning-overview .score-changes {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.morning-overview .change-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.morning-overview .change-item-top {
+  display: flex;
+}
+
+.morning-overview .change-item svg {
+  color: white;
+  width: 24px;
+  height: 24px;
+}
+
+.morning-overview .change-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.morning-overview .change-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.morning-overview .readiness-message {
+  text-align: center;
+  font-size: 1.125rem;
+  color: white;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Metrics Section */
+.morning-overview .metrics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.morning-overview .metrics-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.morning-overview .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.morning-overview .metric-item {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.morning-overview .metric-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.morning-overview .metric-label {
+  font-size: 1.2rem;
+}
+
+/* Action Buttons */
+.morning-overview .action-buttons {
+  display: flex;
+  gap: 4rem;
+  margin-top: 0.5rem;
+}
+
+.morning-overview .action-buttons button {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.morning-overview .secondary-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.morning-overview .secondary-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.morning-overview .primary-button {
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.morning-overview .primary-button:hover {
+  background: rgba(0, 0, 0, 0.4);
+}

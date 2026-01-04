@@ -5,9 +5,10 @@ import MorningOverview from "./MorningOverview";
 interface Props {
   dailyLogs: any[];
   userProfile: any;
+  refreshUserData?: () => void; // Add this
 }
 
-export default function Readiness({ dailyLogs, userProfile }: Props) {
+export default function Readiness({ dailyLogs, userProfile, refreshUserData }: Props) {
   const [showOverview, setShowOverview] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
@@ -64,6 +65,10 @@ export default function Readiness({ dailyLogs, userProfile }: Props) {
 
   const handleMorningComplete = () => {
     setShowOverview(true);
+    // Trigger refresh after completion
+    if (refreshUserData) {
+      refreshUserData();
+    }
   };
 
   return (
@@ -76,11 +81,12 @@ export default function Readiness({ dailyLogs, userProfile }: Props) {
         <MorningReadiness
           onComplete={handleMorningComplete}
           currentDate={currentDate}
+          userProfile={userProfile}
         />
       )}
 
       {hasCheckedToday && showOverview && (
-        <MorningOverview currentDate={currentDate} />
+        <MorningOverview currentDate={currentDate} dailyLogs={dailyLogs} userProfile={userProfile}/>
       )}
 
       {!hasCheckedToday && <div className="loading"></div>}
