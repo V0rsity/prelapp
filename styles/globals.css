@@ -914,3 +914,25 @@ html, body {
   font-size: 1rem;
   margin: 0;
 }
+
+/* Remove focus / selection outlines from recharts svg */
+.trends-section svg:focus,
+.trends-section svg:focus-visible,
+.trends-section svg *:focus,
+.trends-section svg *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Prevent blue selection highlight when dragging */
+.trends-section svg {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Remove outline on chart container div */
+.trends-section .chart-container:focus,
+.trends-section .chart-container:focus-visible {
+  outline: none;
+}
