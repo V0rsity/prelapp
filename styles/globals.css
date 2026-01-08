@@ -903,6 +903,7 @@ html, body {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 0.75rem;
   padding: 3rem 1.5rem;
+  height: 340px;
   margin: 0 0.5rem;
   text-align: center;
   border: 2px dashed rgba(255, 255, 255, 0.3);

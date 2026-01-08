@@ -297,7 +297,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             <div className='chart-label'>
               <p>(Great)</p>
             </div>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={350}>
               <BarChart data={bestFitLine.data} margin={{ left: -20, right: 10, top: 10, bottom: 10 }} >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis 
@@ -419,13 +419,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
-                <button
-                  onClick={() => setBarMetric(null)}
-                  className="metric-clear-btn"
-                  title="Clear metric"
-                >
-                  <X size={16} />
-                </button>
               </div>
             </div>
           </div>
@@ -442,7 +435,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             <div className='chart-label'>
               <p>(Great)</p>
             </div>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={350}>
               <AreaChart data={chartData} margin={{ left: -20, right: 10, top: 10, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorMetric1" x1="0" y1="0" x2="0" y2="1">
