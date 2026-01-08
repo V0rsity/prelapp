@@ -915,6 +915,12 @@ html, body {
   margin: 0;
 }
 
+.trends-section .chart-label p {
+  margin: 0;
+  color: #384959;
+  font-size: .875rem;
+}
+
 /* Remove focus / selection outlines from recharts svg */
 .trends-section svg:focus,
 .trends-section svg:focus-visible,

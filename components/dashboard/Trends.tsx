@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar, Cell } from 'recharts';
-import { X } from 'lucide-react';
+import { X, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface DailyLog {
   id: number;
@@ -178,7 +178,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
       .filter(d => d.value !== null);
     
     if (validData.length < 2) {
-      return barChartData.map(d => ({ ...d, trendLine: null }));
+      return { data: barChartData.map(d => ({ ...d, trendLine: null })), percentChange: null };
     }
 
     const n = validData.length;
@@ -190,10 +190,20 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
 
-    return barChartData.map((d, i) => ({
-      ...d,
-      trendLine: d.value !== null ? slope * i + intercept : null,
-    }));
+    // Calculate percent change from first to last point on trend line
+    const firstIndex = 0;
+    const lastIndex = barChartData.length - 1;
+    const firstValue = slope * firstIndex + intercept;
+    const lastValue = slope * lastIndex + intercept;
+    const percentChange = ((lastValue - firstValue) / firstValue) * 100;
+
+    return {
+      data: barChartData.map((d, i) => ({
+        ...d,
+        trendLine: d.value !== null ? slope * i + intercept : null,
+      })),
+      percentChange: isFinite(percentChange) ? percentChange : null
+    };
   }, [barChartData]);
 
   const metric1Label = METRICS.find(m => m.value === metric1)?.label || '';
@@ -201,7 +211,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
   const barMetricLabel = METRICS.find(m => m.value === barMetric)?.label || '';
   
   // Check if we should show trend line (at least 2 valid data points)
-  const showTrendLine = bestFitLine.filter(d => d.trendLine !== null).length >= 2;
+  const showTrendLine = bestFitLine.data.filter(d => d.trendLine !== null).length >= 2;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -282,10 +292,10 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
           <h3>View trends over time.</h3>
         </div>
         {/* Bar Chart */}
-        {barMetric && bestFitLine.length > 0 ? (
+        {barMetric && bestFitLine.data.length > 0 ? (
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={bestFitLine} margin={{ left: -20, right: 10, top: 10, bottom: 10 }} >
+              <BarChart data={bestFitLine.data} margin={{ left: -20, right: 10, top: 10, bottom: 10 }} >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis 
                   dataKey="date" 
@@ -296,7 +306,14 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
                   domain={barMetric === 'readiness_score' ? [50, 100] : [0, 5]}
-                  ticks={barMetric === 'readiness_score' ? undefined : [0, 1, 2, 3, 4, 5]}
+                  ticks={barMetric === 'readiness_score' ? [50, 60, 70, 80, 90, 100] : [0, 1, 2, 3, 4, 5]}
+                  tickFormatter={(value) => {
+                    if (barMetric === 'readiness_score') {
+                      return value === 50 ? '50 (poor)' : value === 100 ? '100 (good)' : value.toString();
+                    } else {
+                      return value === 0 ? '0 (poor)' : value === 5 ? '5 (good)' : value.toString();
+                    }
+                  }}
                 />
                 <Tooltip 
                   content={<BarCustomTooltip />}
@@ -307,7 +324,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   radius={[8, 8, 0, 0]}
                   animationDuration={500}
                 >
-                  {bestFitLine.map((entry, index) => (
+                  {bestFitLine.data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
                       fill={getBarColor(entry.value, barMetric === 'readiness_score')}
@@ -333,7 +350,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             {/* Legend */}
             <div className="chart-legend">
               <div className="legend-item">
-                <div className="legend-color" style={{ backgroundColor: getAverageBarColor(bestFitLine, barMetric === 'readiness_score') }} />
+                <div className="legend-color" style={{ backgroundColor: getAverageBarColor(bestFitLine.data, barMetric === 'readiness_score') }} />
                 <span>{barMetricLabel}</span>
               </div>
               {showTrendLine && (
@@ -351,20 +368,44 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
         )}
         {/* Controls */}
         <div className="trends-controls">
-          {/* Time Range Toggle */}
-          <div className="time-range-toggle">
-            <button
-              onClick={() => setBarTimeRange(7)}
-              className={`time-range-btn ${barTimeRange === 7 ? 'active' : ''}`}
-            >
-              7 Days
-            </button>
-            <button
-              onClick={() => setBarTimeRange(30)}
-              className={`time-range-btn ${barTimeRange === 30 ? 'active' : ''}`}
-            >
-              30 Days
-            </button>
+          {/* Time Range Toggle and Trend Indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div className="time-range-toggle">
+              <button
+                onClick={() => setBarTimeRange(7)}
+                className={`time-range-btn ${barTimeRange === 7 ? 'active' : ''}`}
+              >
+                7 Days
+              </button>
+              <button
+                onClick={() => setBarTimeRange(30)}
+                className={`time-range-btn ${barTimeRange === 30 ? 'active' : ''}`}
+              >
+                30 Days
+              </button>
+            </div>
+
+            {/* Trend Indicator */}
+            {showTrendLine && bestFitLine.percentChange !== null && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                backgroundColor: bestFitLine.percentChange >= 0 ? '#dcfce7' : '#fee2e2',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: bestFitLine.percentChange >= 0 ? '#16a34a' : '#dc2626'
+              }}>
+                {bestFitLine.percentChange >= 0 ? (
+                  <TrendingUp size={20} />
+                ) : (
+                  <TrendingDown size={20} />
+                )}
+                <span>{Math.abs(bestFitLine.percentChange).toFixed(1)}%</span>
+              </div>
+            )}
           </div>
 
           {/* Metric Selector */}
@@ -420,6 +461,10 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
                   domain={[1, 5]}
+                  ticks={[1, 2, 3, 4, 5]}
+                  tickFormatter={(value) => {
+                    return value === 1 ? '1 (poor)' : value === 5 ? '5 (good)' : value.toString();
+                  }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 {metric1 && (
