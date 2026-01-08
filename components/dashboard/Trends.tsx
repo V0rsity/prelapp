@@ -294,6 +294,9 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
         {/* Bar Chart */}
         {barMetric && bestFitLine.data.length > 0 ? (
           <div className="chart-container">
+            <div className='chart-label'>
+              <p>(Great)</p>
+            </div>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={bestFitLine.data} margin={{ left: -20, right: 10, top: 10, bottom: 10 }} >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -306,14 +309,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
                   domain={barMetric === 'readiness_score' ? [50, 100] : [0, 5]}
-                  ticks={barMetric === 'readiness_score' ? [50, 60, 70, 80, 90, 100] : [0, 1, 2, 3, 4, 5]}
-                  tickFormatter={(value) => {
-                    if (barMetric === 'readiness_score') {
-                      return value === 50 ? '50 (poor)' : value === 100 ? '100 (good)' : value.toString();
-                    } else {
-                      return value === 0 ? '0 (poor)' : value === 5 ? '5 (good)' : value.toString();
-                    }
-                  }}
+                  ticks={barMetric === 'readiness_score' ? undefined : [0, 1, 2, 3, 4, 5]}
                 />
                 <Tooltip 
                   content={<BarCustomTooltip />}
@@ -443,6 +439,9 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
         {/* Chart */}
         {(metric1 || metric2) && chartData.length > 0 ? (
           <div className="chart-container">
+            <div className='chart-label'>
+              <p>(Great)</p>
+            </div>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={chartData} margin={{ left: -20, right: 10, top: 10, bottom: 10 }}>
                 <defs>
@@ -461,10 +460,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
                   domain={[1, 5]}
-                  ticks={[1, 2, 3, 4, 5]}
-                  tickFormatter={(value) => {
-                    return value === 1 ? '1 (poor)' : value === 5 ? '5 (good)' : value.toString();
-                  }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 {metric1 && (

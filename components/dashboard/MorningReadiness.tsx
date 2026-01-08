@@ -153,7 +153,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
             <div className="metric-item">
               <label>
                 <Zap size={20} className="metric-icon" />
-                <span>Stress Level</span>
+                <span>Stress</span>
               </label>
               <div className="slider-container">
                 <input
@@ -165,8 +165,8 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
                   className={`metric-slider slider-value-${stress}`}
                 />
                 <div className="slider-labels">
-                  <span>High</span>
-                  <span>Low</span>
+                  <span>Overwhelmed</span>
+                  <span>Calm</span>
                 </div>
               </div>
             </div>
