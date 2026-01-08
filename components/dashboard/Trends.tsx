@@ -154,10 +154,12 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
     return allDates.slice(startIndex).map((date, index) => {
       const log = logsByDate.get(date);
-      let value = null;
-      
+      let value: number | null = null;
+
       if (log && barMetric) {
-        value = log[barMetric as keyof DailyLog];
+        const raw = log[barMetric as keyof DailyLog];
+
+        value = typeof raw === 'number' ? raw : null;
       }
       
       return {
