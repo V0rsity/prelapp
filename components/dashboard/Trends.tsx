@@ -294,9 +294,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
         {/* Bar Chart */}
         {barMetric && bestFitLine.data.length > 0 ? (
           <div className="chart-container">
-            <div className='chart-label'>
-              <p>(Great)</p>
-            </div>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={bestFitLine.data} margin={{ left: -20, right: 10, top: 10, bottom: 10 }} >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -526,7 +523,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
           <div className="metric-selectors">
             {/* Metric 1 (Area) */}
             <div className="metric-selector-group">
-              <label className="metric-selector-label">Line 1</label>
+              <label className="metric-selector-label">Metric 1 (Blue)</label>
               <div className="metric-selector-wrapper">
                 <select
                   value={metric1 || ''}
@@ -550,7 +547,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
             {/* Metric 2 (Line) */}
             <div className="metric-selector-group">
-              <label className="metric-selector-label">Line 2</label>
+              <label className="metric-selector-label">Metric 2 (Green)</label>
               <div className="metric-selector-wrapper">
                 <select
                   value={metric2 || ''}

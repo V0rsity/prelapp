@@ -812,6 +812,7 @@ html, body {
 .trends-section .metric-selector-wrapper {
   display: flex;
   gap: 0.5rem;
+  height: 2.5rem;
 }
 
 .trends-section .metric-select {
@@ -890,7 +891,7 @@ html, body {
 
 .trends-section .metric2-color {
   background-color: #10b981;
-  height: 3px;
+  height: 4.5px;
 }
 
 .trends-section .legend-item span {
