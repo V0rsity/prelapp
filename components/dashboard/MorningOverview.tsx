@@ -6,6 +6,95 @@ interface Props {
   currentDate: string;
 }
 
+interface ViewLogModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  log: any;
+  formatDate: (date: string) => string;
+  getReadinessLevel: (readiness: number) => string;
+  getColorForScore: (score: number) => string;
+}
+
+// Modal Component
+function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, getColorForScore }: ViewLogModalProps) {
+  if (!isOpen || !log) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M18 6L6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
+        
+        <div className="main-container history-log">
+          <div className="main-heading">
+            <h1>{formatDate(log.date)}</h1>
+            <div className="readiness-badge" data-readiness={getReadinessLevel(log.readiness_score)}>
+              <span className="readiness-label">Morning Readiness</span>
+              <span className="readiness-score">{log.readiness_score}</span>
+            </div>
+          </div>
+          
+          <div className="log-card">
+            <div className="grid-container">
+              <div className="metrics-grid" style={{ "--rows": 5 } as React.CSSProperties}>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}></span>
+                  <span className="metric-label">Sleep {log.sleep_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.energy_morning)})` }}></span>
+                  <span className="metric-label">Energy {log.energy_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.stress_morning)})` }}></span>
+                  <span className="metric-label">Stress {log.stress_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.nutrition_morning)})` }}></span>
+                  <span className="metric-label">Nutrition {log.nutrition_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}></span>
+                  <span className="metric-label">Hydration {log.hydration_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.quad_morning)})` }}></span>
+                  <span className="metric-label">Quads {log.quad_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hamstring_morning)})` }}></span>
+                  <span className="metric-label">Hamstring {log.hamstring_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hip_morning)})` }}></span>
+                  <span className="metric-label">Hips {log.hip_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.calf_morning)})` }}></span>
+                  <span className="metric-label">Calves {log.calf_morning}/5</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.shin_morning)})` }}></span>
+                  <span className="metric-label">Shins {log.shin_morning}/5</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {log.notes_morning && (
+            <div className="log-notes">
+              <span className="notes-label">Notes:</span> {log.notes_morning}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function getColorForScore(score: number): string {
   if (score === 1) return 'red';
   if (score === 2) return 'orange';
@@ -22,12 +111,20 @@ function getReadinessLevel(readiness: number): string {
   return 'red';
 }
 
+function formatDate(dateString: string): string {
+  const [year, month, day] = dateString.split('-');
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+  return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
+}
+
 export default function MorningOverview({ dailyLogs, userProfile, currentDate }: Props) {
   const [todaysLog, setTodaysLog] = useState<any>(null);
   const [yesterdayChange, setYesterdayChange] = useState(0);
   const [weekChange, setWeekChange] = useState(0);
   const [greatMetrics, setGreatMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
   const [needsAttentionMetrics, setNeedsAttentionMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadLogData();
@@ -200,8 +297,21 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate }:
       
       <div className="action-buttons">
         <button className="secondary-button">Edit Log</button>
-        <button className="primary-button">View Log</button>
+        <button 
+          className="primary-button" 
+          onClick={() => setIsModalOpen(true)}
+        >
+          View Log
+        </button>
       </div>
+      <ViewLogModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        log={todaysLog}
+        formatDate={formatDate}
+        getReadinessLevel={getReadinessLevel}
+        getColorForScore={getColorForScore}
+      />
     </div>
   );
 }
