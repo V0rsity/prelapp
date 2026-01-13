@@ -992,6 +992,21 @@ html, body {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.modal-content .main-container {
-  padding: 2rem;
+/* Edit Log Modal */
+
+.edit-modal-content {
+  max-width: 600px;
+}
+
+.edit-modal-content .metric-item {
+  justify-content: space-between;
+}
+
+.edit-modal-content .metrics-container {
+  margin: 1.5rem 0;
+  gap: 2rem;
+}
+
+.edit-modal-content .notes-container {
+  margin: 1.5rem 0;
 }

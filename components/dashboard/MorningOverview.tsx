@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import EditLogModal from './EditLogModal';
 
 interface Props {
   dailyLogs: any[];
   userProfile: any;
   currentDate: string;
+  refreshUserData?: () => void;
 }
 
 interface ViewLogModalProps {
@@ -118,13 +120,14 @@ function formatDate(dateString: string): string {
   return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
 }
 
-export default function MorningOverview({ dailyLogs, userProfile, currentDate }: Props) {
+export default function MorningOverview({ dailyLogs, userProfile, currentDate, refreshUserData }: Props) {
   const [todaysLog, setTodaysLog] = useState<any>(null);
   const [yesterdayChange, setYesterdayChange] = useState(0);
   const [weekChange, setWeekChange] = useState(0);
   const [greatMetrics, setGreatMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
   const [needsAttentionMetrics, setNeedsAttentionMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     loadLogData();
@@ -296,7 +299,12 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate }:
       )}
       
       <div className="action-buttons">
-        <button className="secondary-button">Edit Log</button>
+        <button 
+          className="secondary-button"
+          onClick={() => setIsEditModalOpen(true)}
+        >
+          Edit Log
+        </button>
         <button 
           className="primary-button" 
           onClick={() => setIsModalOpen(true)}
@@ -311,6 +319,17 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate }:
         formatDate={formatDate}
         getReadinessLevel={getReadinessLevel}
         getColorForScore={getColorForScore}
+      />
+      <EditLogModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        log={todaysLog}
+        onSave={() => {
+          // Trigger refresh from Supabase
+          if (refreshUserData) {
+            refreshUserData();
+          }
+        }}
       />
     </div>
   );

@@ -86,7 +86,7 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
       )}
 
       {hasCheckedToday && showOverview && (
-        <MorningOverview currentDate={currentDate} dailyLogs={dailyLogs} userProfile={userProfile}/>
+        <MorningOverview currentDate={currentDate} dailyLogs={dailyLogs} userProfile={userProfile} refreshUserData={refreshUserData}/>
       )}
 
       {!hasCheckedToday && <div className="loading"></div>}
