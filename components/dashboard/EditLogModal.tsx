@@ -1,16 +1,41 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { calculateReadinessScore } from "../../utils/readinessScore";
+
+// Metric configuration - same as MorningReadiness
+const METRIC_CONFIG = {
+  quad: {
+    label: "Quad Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  hamstring: {
+    label: "Hamstring Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  hip: {
+    label: "Hip Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  calf: {
+    label: "Calf Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  shin: {
+    label: "Shin Soreness",
+    eventTypes: ["runner", "hurdler"],
+  },
+};
 
 interface EditLogModalProps {
   isOpen: boolean;
   onClose: () => void;
   log: any;
-  onSave: () => void; // Changed to just trigger refresh
+  onSave: () => void;
+  userProfile: any; // Add userProfile prop
 }
 
-export default function EditLogModal({ isOpen, onClose, log, onSave }: EditLogModalProps) {
+export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile }: EditLogModalProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,23 +52,60 @@ export default function EditLogModal({ isOpen, onClose, log, onSave }: EditLogMo
   const [shinSoreness, setShinSoreness] = useState(log?.shin_morning || 3);
   const [notes, setNotes] = useState(log?.notes_morning || "");
 
+  // Determine which soreness metrics to show based on what's in the log
+  const visibleSorenessMetrics = useMemo(() => {
+    if (!log) return [];
+    
+    const sorenessMetrics = [
+      { key: 'quad', label: 'Quad Soreness' },
+      { key: 'hamstring', label: 'Hamstring Soreness' },
+      { key: 'hip', label: 'Hip Soreness' },
+      { key: 'calf', label: 'Calf Soreness' },
+      { key: 'shin', label: 'Shin Soreness' }
+    ];
+    
+    // Filter to only include metrics that exist in the log (not null/undefined)
+    return sorenessMetrics.filter(({ key }) => {
+      const value = log[`${key}_morning`];
+      return value !== null && value !== undefined;
+    });
+  }, [log]);
+
+  // Map metric keys to their state values and setters
+  const metricStateMap: Record<string, { value: number; setter: (value: number) => void }> = {
+    quad: { value: quadSoreness, setter: setQuadSoreness },
+    hamstring: { value: hamstringSoreness, setter: setHamstringSoreness },
+    hip: { value: hipSoreness, setter: setHipSoreness },
+    calf: { value: calfSoreness, setter: setCalfSoreness },
+    shin: { value: shinSoreness, setter: setShinSoreness },
+  };
+
   const handleUpdate = async () => {
     if (!log || isSubmitting) return;
 
     setIsSubmitting(true);
 
     try {
+      // Build soreness object - preserve nulls for metrics not in the original log
+      const sorenessData: Record<string, number | null> = {
+        quad: log.quad_morning !== null && log.quad_morning !== undefined ? quadSoreness : null,
+        hamstring: log.hamstring_morning !== null && log.hamstring_morning !== undefined ? hamstringSoreness : null,
+        hip: log.hip_morning !== null && log.hip_morning !== undefined ? hipSoreness : null,
+        calf: log.calf_morning !== null && log.calf_morning !== undefined ? calfSoreness : null,
+        shin: log.shin_morning !== null && log.shin_morning !== undefined ? shinSoreness : null,
+      };
+
       const readinessScore = calculateReadinessScore({
         sleep,
         energy,
         stress,
         hydration,
         nutrition,
-        quad: quadSoreness,
-        hamstring: hamstringSoreness,
-        hip: hipSoreness,
-        calf: calfSoreness,
-        shin: shinSoreness,
+        quad: sorenessData.quad,
+        hamstring: sorenessData.hamstring,
+        hip: sorenessData.hip,
+        calf: sorenessData.calf,
+        shin: sorenessData.shin,
       });
 
       const updatedLog = {
@@ -52,11 +114,11 @@ export default function EditLogModal({ isOpen, onClose, log, onSave }: EditLogMo
         stress_morning: stress,
         hydration_morning: hydration,
         nutrition_morning: nutrition,
-        quad_morning: quadSoreness,
-        hamstring_morning: hamstringSoreness,
-        hip_morning: hipSoreness,
-        calf_morning: calfSoreness,
-        shin_morning: shinSoreness,
+        quad_morning: sorenessData.quad,
+        hamstring_morning: sorenessData.hamstring,
+        hip_morning: sorenessData.hip,
+        calf_morning: sorenessData.calf,
+        shin_morning: sorenessData.shin,
         notes_morning: notes,
         readiness_score: readinessScore,
       };
@@ -229,115 +291,31 @@ export default function EditLogModal({ isOpen, onClose, log, onSave }: EditLogMo
           {currentPage === 2 && (
             <div className="readiness-page">
               <div className="metrics-container">
-                {/* Quad Soreness */}
-                <div className="metric-item">
-                  <label>
-                    <Activity size={20} className="metric-icon" />
-                    <span>Quad Soreness</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={quadSoreness}
-                      onChange={(e) => setQuadSoreness(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${quadSoreness}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Severe</span>
-                      <span>None</span>
+                {visibleSorenessMetrics.map(({ key, label }) => {
+                  const { value, setter } = metricStateMap[key];
+                  return (
+                    <div key={key} className="metric-item">
+                      <label>
+                        <Activity size={20} className="metric-icon" />
+                        <span>{label}</span>
+                      </label>
+                      <div className="slider-container">
+                        <input
+                          type="range"
+                          min="1"
+                          max="5"
+                          value={value}
+                          onChange={(e) => setter(parseInt(e.target.value))}
+                          className={`metric-slider slider-value-${value}`}
+                        />
+                        <div className="slider-labels">
+                          <span>Severe</span>
+                          <span>None</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Hamstring Soreness */}
-                <div className="metric-item">
-                  <label>
-                    <Activity size={20} className="metric-icon" />
-                    <span>Hamstring Soreness</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={hamstringSoreness}
-                      onChange={(e) => setHamstringSoreness(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${hamstringSoreness}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Severe</span>
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Hip Soreness */}
-                <div className="metric-item">
-                  <label>
-                    <Activity size={20} className="metric-icon" />
-                    <span>Hip Soreness</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={hipSoreness}
-                      onChange={(e) => setHipSoreness(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${hipSoreness}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Severe</span>
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Calf Soreness */}
-                <div className="metric-item">
-                  <label>
-                    <Activity size={20} className="metric-icon" />
-                    <span>Calf Soreness</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={calfSoreness}
-                      onChange={(e) => setCalfSoreness(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${calfSoreness}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Severe</span>
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Shin Soreness */}
-                <div className="metric-item">
-                  <label>
-                    <Activity size={20} className="metric-icon" />
-                    <span>Shin Soreness</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={shinSoreness}
-                      onChange={(e) => setShinSoreness(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${shinSoreness}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Severe</span>
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
 
               <div className="button-group">

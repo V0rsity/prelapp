@@ -1,9 +1,37 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useMemo } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { calculateReadinessScore } from "../../utils/readinessScore";
 
+// Metric configuration - easy to extend in the future
+const METRIC_CONFIG = {
+  quad: {
+    label: "Quad Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  hamstring: {
+    label: "Hamstring Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  hip: {
+    label: "Hip Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  calf: {
+    label: "Calf Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  shin: {
+    label: "Shin Soreness",
+    eventTypes: ["runner", "hurdler"],
+  },
+  // Easy to add more metrics here in the future:
+  // ankle: {
+  //   label: "Ankle Soreness",
+  //   eventTypes: ["Runner", "Jumper"],
+  // },
+};
 
 interface MorningReadinessProps {
   onComplete: () => void;
@@ -29,12 +57,57 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
   const [shinSoreness, setShinSoreness] = useState(3);
   const [notes, setNotes] = useState("");
 
+  // Determine which soreness metrics to show based on user's event types
+  const visibleSorenessMetrics = useMemo(() => {
+    if (!userProfile?.event_types || userProfile.event_types.length === 0) {
+      return [];
+    }
+
+    const userEventTypes = userProfile.event_types;
+    const visible = [];
+
+    for (const [key, config] of Object.entries(METRIC_CONFIG)) {
+      // Check if user has any event type that matches this metric
+      const shouldShow = config.eventTypes.some(eventType => 
+        userEventTypes.includes(eventType)
+      );
+      
+      if (shouldShow) {
+        visible.push({ key, ...config });
+      }
+    }
+
+    return visible;
+  }, [userProfile?.event_types]);
+
+  // Map metric keys to their state values and setters
+  const metricStateMap: Record<string, { value: number; setter: (value: number) => void }> = {
+    quad: { value: quadSoreness, setter: setQuadSoreness },
+    hamstring: { value: hamstringSoreness, setter: setHamstringSoreness },
+    hip: { value: hipSoreness, setter: setHipSoreness },
+    calf: { value: calfSoreness, setter: setCalfSoreness },
+    shin: { value: shinSoreness, setter: setShinSoreness },
+  };
+
   const handleFinalSubmit = async () => {
     if (!user || !currentDate || isSubmitting) return;
 
     setIsSubmitting(true);
 
     try {
+      // Build soreness object - only include metrics that are visible
+      const sorenessData: Record<string, number | null> = {
+        quad: null,
+        hamstring: null,
+        hip: null,
+        calf: null,
+        shin: null,
+      };
+
+      // Set actual values only for visible metrics
+      visibleSorenessMetrics.forEach(({ key }) => {
+        sorenessData[key] = metricStateMap[key].value;
+      });
 
       const readinessScore = calculateReadinessScore({
         sleep,
@@ -42,11 +115,11 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
         stress,
         hydration,
         nutrition,
-        quad: quadSoreness,
-        hamstring: hamstringSoreness,
-        hip: hipSoreness,
-        calf: calfSoreness,
-        shin: shinSoreness,
+        quad: sorenessData.quad,
+        hamstring: sorenessData.hamstring,
+        hip: sorenessData.hip,
+        calf: sorenessData.calf,
+        shin: sorenessData.shin,
       });
 
       const newLog = {
@@ -58,13 +131,13 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
         stress_morning: stress,
         hydration_morning: hydration,
         nutrition_morning: nutrition,
-        quad_morning: quadSoreness,
-        hamstring_morning: hamstringSoreness,
-        hip_morning: hipSoreness,
-        calf_morning: calfSoreness,
-        shin_morning: shinSoreness,
+        quad_morning: sorenessData.quad,
+        hamstring_morning: sorenessData.hamstring,
+        hip_morning: sorenessData.hip,
+        calf_morning: sorenessData.calf,
+        shin_morning: sorenessData.shin,
         notes_morning: notes,
-        readiness_score: readinessScore, // Calculate this if needed
+        readiness_score: readinessScore,
       };
 
       // Insert into Supabase
@@ -228,115 +301,31 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
       {currentPage === 2 && (
         <div className="readiness-page">
           <div className="metrics-container">
-            {/* Quad Soreness */}
-            <div className="metric-item">
-              <label>
-                <Activity size={20} className="metric-icon" />
-                <span>Quad Soreness</span>
-              </label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={quadSoreness}
-                  onChange={(e) => setQuadSoreness(parseInt(e.target.value))}
-                  className={`metric-slider slider-value-${quadSoreness}`}
-                />
-                <div className="slider-labels">
-                  <span>Severe</span>
-                  <span>None</span>
+            {visibleSorenessMetrics.map(({ key, label }) => {
+              const { value, setter } = metricStateMap[key];
+              return (
+                <div key={key} className="metric-item">
+                  <label>
+                    <Activity size={20} className="metric-icon" />
+                    <span>{label}</span>
+                  </label>
+                  <div className="slider-container">
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={value}
+                      onChange={(e) => setter(parseInt(e.target.value))}
+                      className={`metric-slider slider-value-${value}`}
+                    />
+                    <div className="slider-labels">
+                      <span>Severe</span>
+                      <span>None</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Hamstring Soreness */}
-            <div className="metric-item">
-              <label>
-                <Activity size={20} className="metric-icon" />
-                <span>Hamstring Soreness</span>
-              </label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={hamstringSoreness}
-                  onChange={(e) => setHamstringSoreness(parseInt(e.target.value))}
-                  className={`metric-slider slider-value-${hamstringSoreness}`}
-                />
-                <div className="slider-labels">
-                  <span>Severe</span>
-                  <span>None</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Hip Soreness */}
-            <div className="metric-item">
-              <label>
-                <Activity size={20} className="metric-icon" />
-                <span>Hip Soreness</span>
-              </label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={hipSoreness}
-                  onChange={(e) => setHipSoreness(parseInt(e.target.value))}
-                  className={`metric-slider slider-value-${hipSoreness}`}
-                />
-                <div className="slider-labels">
-                  <span>Severe</span>
-                  <span>None</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Calf Soreness */}
-            <div className="metric-item">
-              <label>
-                <Activity size={20} className="metric-icon" />
-                <span>Calf Soreness</span>
-              </label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={calfSoreness}
-                  onChange={(e) => setCalfSoreness(parseInt(e.target.value))}
-                  className={`metric-slider slider-value-${calfSoreness}`}
-                />
-                <div className="slider-labels">
-                  <span>Severe</span>
-                  <span>None</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Shin Soreness */}
-            <div className="metric-item">
-              <label>
-                <Activity size={20} className="metric-icon" />
-                <span>Shin Soreness</span>
-              </label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={shinSoreness}
-                  onChange={(e) => setShinSoreness(parseInt(e.target.value))}
-                  className={`metric-slider slider-value-${shinSoreness}`}
-                />
-                <div className="slider-labels">
-                  <span>Severe</span>
-                  <span>None</span>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
 
           <div className="button-group">

@@ -4,11 +4,11 @@ export type ReadinessInputs = {
   stress: number;
   hydration: number;
   nutrition: number;
-  quad: number;
-  hamstring: number;
-  hip: number;
-  calf: number;
-  shin: number;
+  quad: number | null;
+  hamstring: number | null;
+  hip: number | null;
+  calf: number | null;
+  shin: number | null;
 };
 
 export type ReadinessWeights = {
@@ -17,11 +17,7 @@ export type ReadinessWeights = {
   stress: number;
   hydration: number;
   nutrition: number;
-  quad: number;
-  hamstring: number;
-  hip: number;
-  calf: number;
-  shin: number;
+  soreness: number; // Combined weight for all soreness metrics
 };
 
 export const defaultReadinessWeights: ReadinessWeights = {
@@ -30,24 +26,43 @@ export const defaultReadinessWeights: ReadinessWeights = {
   stress: 1.0,
   hydration: 1.0,
   nutrition: 1.0,
-  quad: 0.8,
-  hamstring: 0.8,
-  hip: 0.8,
-  calf: 0.8,
-  shin: 0.8,
+  soreness: 0.24, // 24% total for all soreness combined
 };
 
 export function calculateReadinessScore(
   inputs: ReadinessInputs,
   weights: ReadinessWeights = defaultReadinessWeights
 ): number {
-  let weightedSum = 0;
-  let weightTotal = 0;
+  // Calculate general metrics (always present)
+  let weightedSum = 
+    inputs.sleep * weights.sleep +
+    inputs.energy * weights.energy +
+    inputs.stress * weights.stress +
+    inputs.hydration * weights.hydration +
+    inputs.nutrition * weights.nutrition;
+  
+  let weightTotal = 
+    weights.sleep +
+    weights.energy +
+    weights.stress +
+    weights.hydration +
+    weights.nutrition;
 
-  (Object.keys(inputs) as (keyof ReadinessInputs)[]).forEach((key) => {
-    weightedSum += inputs[key] * weights[key];
-    weightTotal += weights[key];
-  });
+  // Calculate soreness metrics (only include non-null values)
+  const sorenessMetrics = [
+    inputs.quad,
+    inputs.hamstring,
+    inputs.hip,
+    inputs.calf,
+    inputs.shin,
+  ].filter((value): value is number => value !== null);
+
+  // If there are any soreness metrics, add them to the calculation
+  if (sorenessMetrics.length > 0) {
+    const sorenessAverage = sorenessMetrics.reduce((sum, val) => sum + val, 0) / sorenessMetrics.length;
+    weightedSum += sorenessAverage * weights.soreness;
+    weightTotal += weights.soreness;
+  }
 
   const rawAverage = weightedSum / weightTotal; // 1 → 5
 

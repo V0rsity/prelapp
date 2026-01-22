@@ -28,18 +28,38 @@ interface Props {
   refreshUserData: () => void;
 }
 
-const METRICS = [
+// Metric configuration - same as MorningReadiness
+const METRIC_CONFIG = {
+  quad_morning: {
+    label: "Quad Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  hamstring_morning: {
+    label: "Hamstring Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  hip_morning: {
+    label: "Hip Soreness",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
+  calf_morning: {
+    label: "Calf Soreness",
+    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
+  },
+  shin_morning: {
+    label: "Shin Soreness",
+    eventTypes: ["runner", "hurdler"],
+  },
+};
+
+// Base metrics that are always available
+const BASE_METRICS = [
   { value: 'readiness_score', label: 'Readiness Score' },
   { value: 'sleep_morning', label: 'Sleep Quality' },
   { value: 'energy_morning', label: 'Energy Level' },
   { value: 'stress_morning', label: 'Stress Level' },
   { value: 'hydration_morning', label: 'Hydration' },
   { value: 'nutrition_morning', label: 'Nutrition' },
-  { value: 'quad_morning', label: 'Quad Soreness' },
-  { value: 'hamstring_morning', label: 'Hamstring Soreness' },
-  { value: 'hip_morning', label: 'Hip Soreness' },
-  { value: 'calf_morning', label: 'Calf Soreness' },
-  { value: 'shin_morning', label: 'Shin Soreness' },
 ];
 
 // Helper function to format date from YYYY-MM-DD
@@ -78,17 +98,15 @@ const findEarliestDataDate = (allDates: string[], logsByDate: Map<string, any>) 
 
 // Helper function to get bar color based on value
 const getBarColor = (value: number | null, isReadinessScore: boolean) => {
-  if (value === null) return '#FFFFFF'; // default white
+  if (value === null) return '#FFFFFF';
   
   if (isReadinessScore) {
-    // Readiness score: 50s = red, 60s = orange, 70s = yellow, 80s = light-green, 90s = green
     if (value < 60) return 'var(--color-red)';
     if (value < 70) return 'var(--color-orange)';
     if (value < 80) return 'var(--color-yellow)';
     if (value < 90) return 'var(--color-light-green)';
     return 'var(--color-green)';
   } else {
-    // 1-5 scale: 1 = red, 2 = orange, 3 = yellow, 4 = light-green, 5 = green
     if (value <= 1) return 'var(--color-red)';
     if (value <= 2) return 'var(--color-orange)';
     if (value <= 3) return 'var(--color-yellow)';
@@ -112,6 +130,30 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
   const [barMetric, setBarMetric] = useState<string | null>('readiness_score');
   const [metric1, setMetric1] = useState<string | null>('readiness_score');
   const [metric2, setMetric2] = useState<string | null>('sleep_morning');
+
+  // Get available metrics based on user's event types
+  const availableMetrics = useMemo(() => {
+    const metrics = [...BASE_METRICS];
+    
+    if (!userProfile?.event_types || userProfile.event_types.length === 0) {
+      return metrics;
+    }
+
+    const userEventTypes = userProfile.event_types;
+
+    // Add soreness metrics that match user's event types
+    for (const [key, config] of Object.entries(METRIC_CONFIG)) {
+      const shouldShow = config.eventTypes.some(eventType => 
+        userEventTypes.includes(eventType)
+      );
+      
+      if (shouldShow) {
+        metrics.push({ value: key, label: config.label });
+      }
+    }
+
+    return metrics;
+  }, [userProfile?.event_types]);
 
   // Prepare chart data with all dates
   const chartData = useMemo(() => {
@@ -158,7 +200,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
       if (log && barMetric) {
         const raw = log[barMetric as keyof DailyLog];
-
         value = typeof raw === 'number' ? raw : null;
       }
       
@@ -190,7 +231,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
 
-    // Calculate percent change from first to last point on trend line
     const firstIndex = 0;
     const lastIndex = barChartData.length - 1;
     const firstValue = slope * firstIndex + intercept;
@@ -206,11 +246,10 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
     };
   }, [barChartData]);
 
-  const metric1Label = METRICS.find(m => m.value === metric1)?.label || '';
-  const metric2Label = METRICS.find(m => m.value === metric2)?.label || '';
-  const barMetricLabel = METRICS.find(m => m.value === barMetric)?.label || '';
+  const metric1Label = availableMetrics.find(m => m.value === metric1)?.label || '';
+  const metric2Label = availableMetrics.find(m => m.value === metric2)?.label || '';
+  const barMetricLabel = availableMetrics.find(m => m.value === barMetric)?.label || '';
   
-  // Check if we should show trend line (at least 2 valid data points)
   const showTrendLine = bestFitLine.data.filter(d => d.trendLine !== null).length >= 2;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -224,7 +263,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
         }}>
           <p style={{ margin: '0 0 8px 0', fontWeight: '600' }}>{label}</p>
           {payload.map((entry: any, index: number) => {
-            // Check if this is readiness score and convert back to 50-99 scale
             let displayValue = entry.value;
             let metricKey = entry.dataKey === 'metric1' ? metric1 : metric2;
             
@@ -261,7 +299,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             
             let displayValue = entry.value;
             
-            // Display actual values without conversion
             if (barMetric === 'readiness_score' && displayValue !== null) {
               displayValue = displayValue.toFixed(0);
             } else if (displayValue !== null) {
@@ -291,7 +328,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
           <h1>Track Progress</h1>
           <h3>View trends over time.</h3>
         </div>
-        {/* Bar Chart */}
         {barMetric && bestFitLine.data.length > 0 ? (
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={350}>
@@ -340,7 +376,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
               </BarChart>
             </ResponsiveContainer>
             
-            {/* Legend */}
             <div className="chart-legend">
               <div className="legend-item">
                 <div className="legend-color" style={{ backgroundColor: getAverageBarColor(bestFitLine.data, barMetric === 'readiness_score') }} />
@@ -359,9 +394,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             <p>Select a metric to track</p>
           </div>
         )}
-        {/* Controls */}
         <div className="trends-controls">
-          {/* Time Range Toggle and Trend Indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div className="time-range-toggle">
               <button
@@ -378,7 +411,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
               </button>
             </div>
 
-            {/* Trend Indicator */}
             {showTrendLine && bestFitLine.percentChange !== null && (
               <div style={{
                 display: 'flex',
@@ -401,7 +433,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             )}
           </div>
 
-          {/* Metric Selector */}
           <div className="metric-selectors">
             <div className="metric-selector-group">
               <label className="metric-selector-label">Metric</label>
@@ -412,7 +443,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   className="metric-select"
                 >
                   <option value="">Select metric...</option>
-                  {METRICS.map(m => (
+                  {availableMetrics.map(m => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
@@ -426,7 +457,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
           <h1>Compare Trends</h1>
           <h3>Analyze relations between metrics.</h3>
         </div>
-        {/* Chart */}
         {(metric1 || metric2) && chartData.length > 0 ? (
           <div className="chart-container">
             <div className='chart-label'>
@@ -480,7 +510,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
               </AreaChart>
             </ResponsiveContainer>
             
-            {/* Legend */}
             <div className="chart-legend">
               {metric1 && (
                 <div className="legend-item">
@@ -501,9 +530,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             <p>Select at least one metric to compare</p>
           </div>
         )}
-        {/* Controls */}
         <div className="trends-controls">
-          {/* Time Range Toggle */}
           <div className="time-range-toggle">
             <button
               onClick={() => setTimeRange(7)}
@@ -519,9 +546,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
             </button>
           </div>
 
-          {/* Metric Selectors */}
           <div className="metric-selectors">
-            {/* Metric 1 (Area) */}
             <div className="metric-selector-group">
               <label className="metric-selector-label">Metric 1 (Blue)</label>
               <div className="metric-selector-wrapper">
@@ -531,7 +556,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   className="metric-select"
                 >
                   <option value="">Select metric...</option>
-                  {METRICS.map(m => (
+                  {availableMetrics.map(m => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
@@ -545,7 +570,6 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
               </div>
             </div>
 
-            {/* Metric 2 (Line) */}
             <div className="metric-selector-group">
               <label className="metric-selector-label">Metric 2 (Yellow)</label>
               <div className="metric-selector-wrapper">
@@ -555,7 +579,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   className="metric-select"
                 >
                   <option value="">Select metric...</option>
-                  {METRICS.map(m => (
+                  {availableMetrics.map(m => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>

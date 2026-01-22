@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import EditLogModal from './EditLogModal';
 
 interface Props {
@@ -15,11 +15,14 @@ interface ViewLogModalProps {
   formatDate: (date: string) => string;
   getReadinessLevel: (readiness: number) => string;
   getColorForScore: (score: number) => string;
+  availableSorenessMetrics: Array<{key: string, label: string}>;
 }
 
 // Modal Component
-function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, getColorForScore }: ViewLogModalProps) {
+function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, getColorForScore, availableSorenessMetrics }: ViewLogModalProps) {
   if (!isOpen || !log) return null;
+
+  const totalMetrics = 5 + availableSorenessMetrics.length;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -41,7 +44,7 @@ function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, get
           
           <div className="log-card">
             <div className="grid-container">
-              <div className="metrics-grid" style={{ "--rows": 5 } as React.CSSProperties}>
+              <div className="metrics-grid" style={{ "--rows": Math.ceil(totalMetrics / 2) } as React.CSSProperties}>
                 <div className="metric-item">
                   <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}></span>
                   <span className="metric-label">Sleep {log.sleep_morning}/5</span>
@@ -62,26 +65,12 @@ function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, get
                   <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}></span>
                   <span className="metric-label">Hydration {log.hydration_morning}/5</span>
                 </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.quad_morning)})` }}></span>
-                  <span className="metric-label">Quads {log.quad_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hamstring_morning)})` }}></span>
-                  <span className="metric-label">Hamstring {log.hamstring_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hip_morning)})` }}></span>
-                  <span className="metric-label">Hips {log.hip_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.calf_morning)})` }}></span>
-                  <span className="metric-label">Calves {log.calf_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.shin_morning)})` }}></span>
-                  <span className="metric-label">Shins {log.shin_morning}/5</span>
-                </div>
+                {availableSorenessMetrics.map(({ key, label }) => (
+                  <div key={key} className="metric-item">
+                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}></span>
+                    <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -129,6 +118,25 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // Determine which soreness metrics are available in the log
+  const availableSorenessMetrics = useMemo(() => {
+    if (!todaysLog) return [];
+    
+    const sorenessMetrics = [
+      { key: 'quad', label: 'Quads' },
+      { key: 'hamstring', label: 'Hamstrings' },
+      { key: 'hip', label: 'Hips' },
+      { key: 'calf', label: 'Calves' },
+      { key: 'shin', label: 'Shins' }
+    ];
+    
+    // Filter to only include metrics that exist in the log (not null/undefined)
+    return sorenessMetrics.filter(({ key }) => {
+      const value = todaysLog[`${key}_morning`];
+      return value !== null && value !== undefined;
+    });
+  }, [todaysLog]);
+
   useEffect(() => {
     loadLogData();
   }, [currentDate, dailyLogs]);
@@ -170,19 +178,30 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       setWeekChange(0);
     }
     
-    // Process metrics for "Great" section
+    // Build metrics array - only include metrics that exist in the log
     const metrics = [
       { name: 'Sleep', value: todayLog.sleep_morning },
       { name: 'Energy', value: todayLog.energy_morning },
       { name: 'Stress', value: todayLog.stress_morning },
       { name: 'Hydration', value: todayLog.hydration_morning },
-      { name: 'Nutrition', value: todayLog.nutrition_morning },
-      { name: 'Quads', value: todayLog.quad_morning },
-      { name: 'Hamstrings', value: todayLog.hamstring_morning },
-      { name: 'Hips', value: todayLog.hip_morning },
-      { name: 'Calves', value: todayLog.calf_morning },
-      { name: 'Shins', value: todayLog.shin_morning }
+      { name: 'Nutrition', value: todayLog.nutrition_morning }
     ];
+    
+    // Add soreness metrics only if they exist
+    const sorenessMetrics = [
+      { key: 'quad', name: 'Quads' },
+      { key: 'hamstring', name: 'Hamstrings' },
+      { key: 'hip', name: 'Hips' },
+      { key: 'calf', name: 'Calves' },
+      { key: 'shin', name: 'Shins' }
+    ];
+    
+    sorenessMetrics.forEach(({ key, name }) => {
+      const value = todayLog[`${key}_morning`];
+      if (value !== null && value !== undefined) {
+        metrics.push({ name, value });
+      }
+    });
     
     // Filter and sort for "Great" (scores 4-5)
     const greatOnes = metrics
@@ -319,13 +338,14 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
         formatDate={formatDate}
         getReadinessLevel={getReadinessLevel}
         getColorForScore={getColorForScore}
+        availableSorenessMetrics={availableSorenessMetrics}
       />
       <EditLogModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         log={todaysLog}
+        userProfile={userProfile}
         onSave={() => {
-          // Trigger refresh from Supabase
           if (refreshUserData) {
             refreshUserData();
           }
