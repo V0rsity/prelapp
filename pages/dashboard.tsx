@@ -9,6 +9,7 @@ import { MoreVertical, Clock, Zap, TrendingUp, RefreshCw } from "lucide-react";
 import Readiness from "../components/dashboard/Readiness";
 import History from "../components/dashboard/History";
 import Trends from "../components/dashboard/Trends";
+import ProfileSelectionModal from "../components/dashboard/ProfileSelectionModal";
 
 // Types
 interface UserProfile {
@@ -19,6 +20,7 @@ interface UserProfile {
   timezone: string;
   created_at: string;
   is_premium: boolean;
+  event_types: string[];
 }
 
 interface DailyLog {
@@ -49,6 +51,7 @@ export default function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -61,6 +64,12 @@ export default function Dashboard() {
       fetchUserData();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (userProfile && (!userProfile.event_types || userProfile.event_types.length === 0)) {
+      setShowProfileModal(true);
+    }
+  }, [userProfile]);
 
   // Returns userProfile and dailyLogs. Only syncs with supabase if not already stored in sessionStorage.
   const fetchUserData = async () => {
@@ -151,6 +160,11 @@ export default function Dashboard() {
     fetchUserData(); // Just syncs from sessionStorage, not supabase
   };
 
+  const handleProfileComplete = () => {
+    setShowProfileModal(false);
+    fetchUserData(); // Refresh data
+  };
+
   // Render the appropriate component based on active tab
   const renderContent = () => {
   if (dataLoading) {
@@ -177,7 +191,13 @@ export default function Dashboard() {
 };
 
   return (
-    <div className="dashboard-wrapper">
+    <div className={`dashboard-wrapper ${showProfileModal ? 'modal-active' : ''}`}>
+      {showProfileModal && userProfile && (
+        <ProfileSelectionModal 
+          userId={userProfile.id}
+          onComplete={handleProfileComplete}
+        />
+      )}
       {/* Top Bar */}
       <div id="topbar">
         <img src="/images/Logo-Mobile.png" alt="Logo" id="mobile" />

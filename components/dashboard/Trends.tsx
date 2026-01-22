@@ -469,9 +469,9 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                   <Line
                     type="monotone"
                     dataKey="metric2"
-                    stroke="#10b981"
+                    stroke="#efbf04"
                     strokeWidth={3}
-                    dot={{ fill: '#10b981', r: 4 }}
+                    dot={{ fill: '#efbf04', r: 4 }}
                     name={metric2Label}
                     connectNulls
                     animationDuration={500}
@@ -547,7 +547,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
             {/* Metric 2 (Line) */}
             <div className="metric-selector-group">
-              <label className="metric-selector-label">Metric 2 (Green)</label>
+              <label className="metric-selector-label">Metric 2 (Yellow)</label>
               <div className="metric-selector-wrapper">
                 <select
                   value={metric2 || ''}
