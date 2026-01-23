@@ -4,44 +4,13 @@ import { useRouter } from "next/router";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { MoreVertical, Clock, Zap, TrendingUp, RefreshCw } from "lucide-react";
+import { DailyLog, UserProfile } from '@/types/models';
 
 // Import components
 import Readiness from "../components/dashboard/Readiness";
 import History from "../components/dashboard/History";
 import Trends from "../components/dashboard/Trends";
 import ProfileSelectionModal from "../components/dashboard/ProfileSelectionModal";
-
-// Types
-interface UserProfile {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  timezone: string;
-  created_at: string;
-  is_premium: boolean;
-  event_types: string[];
-}
-
-interface DailyLog {
-  id: number;
-  created_at: string;
-  user_id: string;
-  date: string;
-  morning_complete: boolean;
-  sleep_morning: number | null;
-  energy_morning: number | null;
-  stress_morning: number | null;
-  hydration_morning: number | null;
-  nutrition_morning: number | null;
-  quad_morning: number | null;
-  hamstring_morning: number | null;
-  hip_morning: number | null;
-  calf_morning: number | null;
-  shin_morning: number | null;
-  notes_morning: string | null;
-  readiness_score: number | null;
-}
 
 export default function Dashboard() {
   const { user, loading } = useContext(AuthContext);

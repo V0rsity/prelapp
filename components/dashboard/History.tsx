@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { getSorenessMetricsShortView } from "@/config/metrics";
+import { READINESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
 
 interface Props {
   dailyLogs: any[];
@@ -29,6 +29,14 @@ function formatDate(dateString: string): string {
   return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
 }
 
+// Get available readiness metrics - dynamically from config
+function getAvailableReadinessMetrics() {
+  return Object.entries(READINESS_METRIC_CONFIG).map(([key, config]) => ({
+    key,
+    label: config.shortLabel,
+  }));
+}
+
 // Get available soreness metrics for a specific log - dynamically from config
 function getAvailableSorenessMetrics(log: any) {
   const sorenessMetrics = getSorenessMetricsShortView();
@@ -40,6 +48,8 @@ function getAvailableSorenessMetrics(log: any) {
 }
 
 export default function History({ dailyLogs, userProfile }: Props) {
+  const readinessMetrics = getAvailableReadinessMetrics();
+
   return (
     <div className="history-section">
       <div className="main-heading main-container">
@@ -52,7 +62,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
       ) : (
         dailyLogs.map((log) => {
           const availableSorenessMetrics = getAvailableSorenessMetrics(log);
-          const totalMetrics = 5 + availableSorenessMetrics.length; // 5 general + soreness
+          const totalMetrics = readinessMetrics.length + availableSorenessMetrics.length;
           
           return (
             <div key={log.id} className="main-container history-log">
@@ -67,46 +77,16 @@ export default function History({ dailyLogs, userProfile }: Props) {
               <div className="log-card">
                 <div className="grid-container">
                   <div className="metrics-grid" style={{ "--rows": Math.ceil(totalMetrics / 2) } as React.CSSProperties}>
-                    {/* General metrics (always shown) */}
-                    <div className="metric-item">
-                      <span
-                        className="metric-dot"
-                        style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}
-                      ></span>
-                      <span className="metric-label">Sleep {log.sleep_morning}/5</span>
-                    </div>
-
-                    <div className="metric-item">
-                      <span
-                        className="metric-dot"
-                        style={{ backgroundColor: `var(--color-${getColorForScore(log.energy_morning)})` }}
-                      ></span>
-                      <span className="metric-label">Energy {log.energy_morning}/5</span>
-                    </div>
-
-                    <div className="metric-item">
-                      <span
-                        className="metric-dot"
-                        style={{ backgroundColor: `var(--color-${getColorForScore(log.stress_morning)})` }}
-                      ></span>
-                      <span className="metric-label">Stress {log.stress_morning}/5</span>
-                    </div>
-
-                    <div className="metric-item">
-                      <span
-                        className="metric-dot"
-                        style={{ backgroundColor: `var(--color-${getColorForScore(log.nutrition_morning)})` }}
-                      ></span>
-                      <span className="metric-label">Nutrition {log.nutrition_morning}/5</span>
-                    </div>
-
-                    <div className="metric-item">
-                      <span
-                        className="metric-dot"
-                        style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}
-                      ></span>
-                      <span className="metric-label">Hydration {log.hydration_morning}/5</span>
-                    </div>
+                    {/* Readiness metrics - dynamically from config */}
+                    {readinessMetrics.map(({ key, label }) => (
+                      <div key={key} className="metric-item">
+                        <span
+                          className="metric-dot"
+                          style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
+                        ></span>
+                        <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
+                      </div>
+                    ))}
 
                     {/* Soreness metrics (conditionally shown) - dynamically from config */}
                     {availableSorenessMetrics.map(({ key, label }) => (

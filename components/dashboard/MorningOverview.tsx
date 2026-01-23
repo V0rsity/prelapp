@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import EditLogModal from './EditLogModal';
-import { SORENESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
+import { READINESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
 
 interface Props {
   dailyLogs: any[];
@@ -16,14 +16,15 @@ interface ViewLogModalProps {
   formatDate: (date: string) => string;
   getReadinessLevel: (readiness: number) => string;
   getColorForScore: (score: number) => string;
+  availableReadinessMetrics: Array<{key: string, label: string}>;
   availableSorenessMetrics: Array<{key: string, label: string}>;
 }
 
 // Modal Component
-function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, getColorForScore, availableSorenessMetrics }: ViewLogModalProps) {
+function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, getColorForScore, availableReadinessMetrics, availableSorenessMetrics }: ViewLogModalProps) {
   if (!isOpen || !log) return null;
 
-  const totalMetrics = 5 + availableSorenessMetrics.length;
+  const totalMetrics = availableReadinessMetrics.length + availableSorenessMetrics.length;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -46,26 +47,15 @@ function ViewLogModal({ isOpen, onClose, log, formatDate, getReadinessLevel, get
           <div className="log-card">
             <div className="grid-container">
               <div className="metrics-grid" style={{ "--rows": Math.ceil(totalMetrics / 2) } as React.CSSProperties}>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.sleep_morning)})` }}></span>
-                  <span className="metric-label">Sleep {log.sleep_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.energy_morning)})` }}></span>
-                  <span className="metric-label">Energy {log.energy_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.stress_morning)})` }}></span>
-                  <span className="metric-label">Stress {log.stress_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.nutrition_morning)})` }}></span>
-                  <span className="metric-label">Nutrition {log.nutrition_morning}/5</span>
-                </div>
-                <div className="metric-item">
-                  <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log.hydration_morning)})` }}></span>
-                  <span className="metric-label">Hydration {log.hydration_morning}/5</span>
-                </div>
+                {/* Readiness metrics - dynamically from config */}
+                {availableReadinessMetrics.map(({ key, label }) => (
+                  <div key={key} className="metric-item">
+                    <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}></span>
+                    <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
+                  </div>
+                ))}
+                
+                {/* Soreness metrics - dynamically from config */}
                 {availableSorenessMetrics.map(({ key, label }) => (
                   <div key={key} className="metric-item">
                     <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}></span>
@@ -118,6 +108,14 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   const [needsAttentionMetrics, setNeedsAttentionMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Get available readiness metrics - dynamically from config (using shortLabel for consistency)
+  const availableReadinessMetrics = useMemo(() => {
+    return Object.entries(READINESS_METRIC_CONFIG).map(([key, config]) => ({
+      key,
+      label: config.shortLabel,
+    }));
+  }, []);
 
   // Determine which soreness metrics are available in the log - dynamically from config
   const availableSorenessMetrics = useMemo(() => {
@@ -173,14 +171,16 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       setWeekChange(0);
     }
     
-    // Build metrics array dynamically
-    const metrics = [
-      { name: 'Sleep', value: todayLog.sleep_morning },
-      { name: 'Energy', value: todayLog.energy_morning },
-      { name: 'Stress', value: todayLog.stress_morning },
-      { name: 'Hydration', value: todayLog.hydration_morning },
-      { name: 'Nutrition', value: todayLog.nutrition_morning }
-    ];
+    // Build metrics array dynamically from config
+    const metrics: Array<{name: string, value: number}> = [];
+    
+    // Add readiness metrics dynamically from config (using shortLabel for "Great" and "Needs Attention")
+    Object.entries(READINESS_METRIC_CONFIG).forEach(([key, config]) => {
+      const value = todayLog[`${key}_morning`];
+      if (value !== null && value !== undefined) {
+        metrics.push({ name: config.shortLabel, value });
+      }
+    });
     
     // Add soreness metrics dynamically from config - only if they exist in the log
     const sorenessMetricsShort = getSorenessMetricsShortView();
@@ -326,6 +326,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
         formatDate={formatDate}
         getReadinessLevel={getReadinessLevel}
         getColorForScore={getColorForScore}
+        availableReadinessMetrics={availableReadinessMetrics}
         availableSorenessMetrics={availableSorenessMetrics}
       />
       <EditLogModal

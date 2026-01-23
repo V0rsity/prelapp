@@ -1,43 +1,14 @@
 import { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar, Cell } from 'recharts';
 import { X, TrendingUp, TrendingDown } from 'lucide-react';
-import { SORENESS_METRIC_CONFIG } from '@/config/metrics';
-
-interface DailyLog {
-  id: number;
-  created_at: string;
-  user_id: string;
-  date: string;
-  morning_complete: boolean;
-  sleep_morning: number | null;
-  energy_morning: number | null;
-  stress_morning: number | null;
-  hydration_morning: number | null;
-  nutrition_morning: number | null;
-  quad_morning: number | null;
-  hamstring_morning: number | null;
-  hip_morning: number | null;
-  calf_morning: number | null;
-  shin_morning: number | null;
-  notes_morning: string | null;
-  readiness_score: number | null;
-}
+import { READINESS_METRIC_CONFIG, SORENESS_METRIC_CONFIG } from '@/config/metrics';
+import { DailyLog, UserProfile } from '@/types/models';
 
 interface Props {
   dailyLogs: DailyLog[];
   userProfile: any;
   refreshUserData: () => void;
 }
-
-// Base metrics that are always available
-const BASE_METRICS = [
-  { value: 'readiness_score', label: 'Readiness Score' },
-  { value: 'sleep_morning', label: 'Sleep Quality' },
-  { value: 'energy_morning', label: 'Energy Level' },
-  { value: 'stress_morning', label: 'Stress Level' },
-  { value: 'hydration_morning', label: 'Hydration' },
-  { value: 'nutrition_morning', label: 'Nutrition' },
-];
 
 // Helper function to format date from YYYY-MM-DD
 const formatDate = (dateStr: string) => {
@@ -110,8 +81,18 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
   // Get available metrics based on user's event types - dynamically from config
   const availableMetrics = useMemo(() => {
-    const metrics = [...BASE_METRICS];
+    const metrics = [
+      { value: 'readiness_score', label: 'Readiness Score' }
+    ];
     
+    // Add readiness metrics dynamically from config
+    Object.entries(READINESS_METRIC_CONFIG).forEach(([key, config]) => {
+      metrics.push({ 
+        value: `${key}_morning`, 
+        label: config.label 
+      });
+    });
+
     if (!userProfile?.event_types || userProfile.event_types.length === 0) {
       return metrics;
     }

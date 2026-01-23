@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { calculateReadinessScore } from "../../utils/readinessScore";
-import { SORENESS_METRIC_CONFIG, SorenessMetricKey, getSorenessMetrics } from "@/config/metrics";
+import { READINESS_METRIC_CONFIG, ReadinessMetricKey, SORENESS_METRIC_CONFIG, SorenessMetricKey, getSorenessMetrics } from "@/config/metrics";
 
 interface EditLogModalProps {
   isOpen: boolean;
@@ -12,16 +12,33 @@ interface EditLogModalProps {
   userProfile: any;
 }
 
+// Icon mapping for readiness metrics
+const READINESS_ICONS = {
+  sleep: Moon,
+  energy: BatteryMedium,
+  stress: Zap,
+  hydration: GlassWater,
+  nutrition: Beef,
+};
+
 export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile }: EditLogModalProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // General readiness state - initialized from log
-  const [sleep, setSleep] = useState(log?.sleep_morning || 3);
-  const [energy, setEnergy] = useState(log?.energy_morning || 3);
-  const [stress, setStress] = useState(log?.stress_morning || 3);
-  const [hydration, setHydration] = useState(log?.hydration_morning || 3);
-  const [nutrition, setNutrition] = useState(log?.nutrition_morning || 3);
+  // Dynamic general readiness state - automatically includes all metrics from config
+  const [readinessValues, setReadinessValues] = useState<Record<ReadinessMetricKey, number>>(() => {
+    const initial: Record<string, number> = {};
+    Object.keys(READINESS_METRIC_CONFIG).forEach(key => {
+      initial[key] = log?.[`${key}_morning`] || 3;
+    });
+    return initial as Record<ReadinessMetricKey, number>;
+  });
+
+  // Update a specific readiness metric
+  const updateReadinessValue = (key: ReadinessMetricKey, value: number) => {
+    setReadinessValues(prev => ({ ...prev, [key]: value }));
+  };
+
   const [notes, setNotes] = useState(log?.notes_morning || "");
 
   // Dynamic soreness state - automatically includes all metrics from config
@@ -73,11 +90,7 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
 
       // Build readiness score params dynamically
       const readinessParams: any = {
-        sleep,
-        energy,
-        stress,
-        hydration,
-        nutrition,
+        ...readinessValues,
         ...sorenessData
       };
 
@@ -85,14 +98,14 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
 
       // Build the update object dynamically
       const updatedLog: any = {
-        sleep_morning: sleep,
-        energy_morning: energy,
-        stress_morning: stress,
-        hydration_morning: hydration,
-        nutrition_morning: nutrition,
         notes_morning: notes,
         readiness_score: readinessScore,
       };
+
+      // Add all readiness metrics dynamically
+      Object.entries(readinessValues).forEach(([key, value]) => {
+        updatedLog[`${key}_morning`] = value;
+      });
 
       // Add all soreness metrics dynamically
       Object.entries(sorenessData).forEach(([key, value]) => {
@@ -140,114 +153,37 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
             <h3>Update your morning readiness log.</h3>
           </div>
 
-          {/* Page 1: General Readiness */}
+          {/* Page 1: General Readiness - Fully Dynamic */}
           {currentPage === 1 && (
             <div className="readiness-page">
               <div className="metrics-container">
-                <div className="metric-item">
-                  <label>
-                    <Moon size={20} className="metric-icon" />
-                    <span>Sleep Quality</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={sleep}
-                      onChange={(e) => setSleep(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${sleep}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Poor</span>
-                      <span>Excellent</span>
+                {Object.entries(READINESS_METRIC_CONFIG).map(([key, config]) => {
+                  const Icon = READINESS_ICONS[key as ReadinessMetricKey];
+                  const metricKey = key as ReadinessMetricKey;
+                  
+                  return (
+                    <div key={key} className="metric-item">
+                      <label>
+                        <Icon size={20} className="metric-icon" />
+                        <span>{config.label}</span>
+                      </label>
+                      <div className="slider-container">
+                        <input
+                          type="range"
+                          min="1"
+                          max="5"
+                          value={readinessValues[metricKey]}
+                          onChange={(e) => updateReadinessValue(metricKey, parseInt(e.target.value))}
+                          className={`metric-slider slider-value-${readinessValues[metricKey]}`}
+                        />
+                        <div className="slider-labels">
+                          <span>{config.minLabel}</span>
+                          <span>{config.maxLabel}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="metric-item">
-                  <label>
-                    <BatteryMedium size={20} className="metric-icon" />
-                    <span>Energy Level</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={energy}
-                      onChange={(e) => setEnergy(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${energy}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Low</span>
-                      <span>High</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="metric-item">
-                  <label>
-                    <Zap size={20} className="metric-icon" />
-                    <span>Stress</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={stress}
-                      onChange={(e) => setStress(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${stress}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Overwhelmed</span>
-                      <span>Calm</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="metric-item">
-                  <label>
-                    <GlassWater size={20} className="metric-icon" />
-                    <span>Hydration</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={hydration}
-                      onChange={(e) => setHydration(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${hydration}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Poor</span>
-                      <span>Excellent</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="metric-item">
-                  <label>
-                    <Beef size={20} className="metric-icon" />
-                    <span>Nutrition</span>
-                  </label>
-                  <div className="slider-container">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={nutrition}
-                      onChange={(e) => setNutrition(parseInt(e.target.value))}
-                      className={`metric-slider slider-value-${nutrition}`}
-                    />
-                    <div className="slider-labels">
-                      <span>Poor</span>
-                      <span>Excellent</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
 
               <div className="button-group">

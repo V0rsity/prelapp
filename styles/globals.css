@@ -514,7 +514,7 @@ html, body {
   }
 }
 
-.history-section .metrics-grid {
+.history-log .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: repeat(var(--rows), auto);

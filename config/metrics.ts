@@ -1,6 +1,42 @@
 // config/metrics.ts
 
 // Note: the key is the part that comes before '_morning' in supabase ex: 'calf_morning'. When adding, must also add to supabase.
+
+// General readiness metrics available to all athletes. Remember to add the icon in MorningReadiness and EditLogModal
+export const READINESS_METRIC_CONFIG = {
+  sleep: {
+    label: "Sleep Quality",
+    shortLabel: "Sleep",
+    minLabel: "Poor",
+    maxLabel: "Excellent",
+  },
+  energy: {
+    label: "Energy Level",
+    shortLabel: "Energy",
+    minLabel: "Low",
+    maxLabel: "High",
+  },
+  stress: {
+    label: "Stress",
+    shortLabel: "Stress",
+    minLabel: "Overwhelmed",
+    maxLabel: "Calm",
+  },
+  hydration: {
+    label: "Hydration",
+    shortLabel: "Hydration",
+    minLabel: "Poor",
+    maxLabel: "Excellent",
+  },
+  nutrition: {
+    label: "Nutrition",
+    shortLabel: "Nutrition",
+    minLabel: "Poor",
+    maxLabel: "Excellent",
+  },
+} as const;
+
+// Soreness metrics based on athlete event types
 export const SORENESS_METRIC_CONFIG = {
   quad: {
     label: "Quad Soreness",
@@ -9,7 +45,7 @@ export const SORENESS_METRIC_CONFIG = {
   },
   hamstring: {
     label: "Hamstring Soreness",
-    shortLabel: "Hamstrings",
+    shortLabel: "Hamstring",
     eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
   },
   hip: {
@@ -29,7 +65,7 @@ export const SORENESS_METRIC_CONFIG = {
   },
 } as const;
 
-// Helper functions that derive from the single source of truth
+// Helper functions for soreness metrics
 export const getSorenessMetrics = () => {
   return Object.entries(SORENESS_METRIC_CONFIG).map(([key, config]) => ({
     key,
@@ -52,22 +88,5 @@ export const getSorenessMetricsArray = () => {
 };
 
 // Type helpers
+export type ReadinessMetricKey = keyof typeof READINESS_METRIC_CONFIG;
 export type SorenessMetricKey = keyof typeof SORENESS_METRIC_CONFIG;
-
-const READINESS_METRIC_CONFIG = {
-  sleep: {
-    lable: "Sleep",
-  },
-  energy: {
-    lable: "Energy",
-  },
-  stress: {
-    lable: "Stress",
-  },
-  hydration: {
-    lable: "Hydration",
-  },
-  nutrition: {
-    lable: "Nutrition",
-  },
-}
