@@ -2,67 +2,48 @@ import { useState, useMemo } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { calculateReadinessScore } from "../../utils/readinessScore";
-
-// Metric configuration - same as MorningReadiness
-const METRIC_CONFIG = {
-  quad: {
-    label: "Quad Soreness",
-    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
-  },
-  hamstring: {
-    label: "Hamstring Soreness",
-    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
-  },
-  hip: {
-    label: "Hip Soreness",
-    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
-  },
-  calf: {
-    label: "Calf Soreness",
-    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
-  },
-  shin: {
-    label: "Shin Soreness",
-    eventTypes: ["runner", "hurdler"],
-  },
-};
+import { SORENESS_METRIC_CONFIG, SorenessMetricKey, getSorenessMetrics } from "@/config/metrics";
 
 interface EditLogModalProps {
   isOpen: boolean;
   onClose: () => void;
   log: any;
   onSave: () => void;
-  userProfile: any; // Add userProfile prop
+  userProfile: any;
 }
 
 export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile }: EditLogModalProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize state from log
+  // General readiness state - initialized from log
   const [sleep, setSleep] = useState(log?.sleep_morning || 3);
   const [energy, setEnergy] = useState(log?.energy_morning || 3);
   const [stress, setStress] = useState(log?.stress_morning || 3);
   const [hydration, setHydration] = useState(log?.hydration_morning || 3);
   const [nutrition, setNutrition] = useState(log?.nutrition_morning || 3);
-  const [quadSoreness, setQuadSoreness] = useState(log?.quad_morning || 3);
-  const [hamstringSoreness, setHamstringSoreness] = useState(log?.hamstring_morning || 3);
-  const [hipSoreness, setHipSoreness] = useState(log?.hip_morning || 3);
-  const [calfSoreness, setCalfSoreness] = useState(log?.calf_morning || 3);
-  const [shinSoreness, setShinSoreness] = useState(log?.shin_morning || 3);
   const [notes, setNotes] = useState(log?.notes_morning || "");
 
-  // Determine which soreness metrics to show based on what's in the log
+  // Dynamic soreness state - automatically includes all metrics from config
+  const [sorenessValues, setSorenessValues] = useState<Record<SorenessMetricKey, number>>(() => {
+    const initial: Record<string, number> = {};
+    Object.keys(SORENESS_METRIC_CONFIG).forEach(key => {
+      // Initialize from log if it exists, otherwise default to 3
+      initial[key] = log?.[`${key}_morning`] || 3;
+    });
+    return initial as Record<SorenessMetricKey, number>;
+  });
+
+  // Update a specific soreness metric
+  const updateSorenessValue = (key: SorenessMetricKey, value: number) => {
+    setSorenessValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Determine which soreness metrics to show - only those that exist in the log
   const visibleSorenessMetrics = useMemo(() => {
     if (!log) return [];
     
-    const sorenessMetrics = [
-      { key: 'quad', label: 'Quad Soreness' },
-      { key: 'hamstring', label: 'Hamstring Soreness' },
-      { key: 'hip', label: 'Hip Soreness' },
-      { key: 'calf', label: 'Calf Soreness' },
-      { key: 'shin', label: 'Shin Soreness' }
-    ];
+    const sorenessMetrics = getSorenessMetrics();
     
     // Filter to only include metrics that exist in the log (not null/undefined)
     return sorenessMetrics.filter(({ key }) => {
@@ -71,57 +52,52 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
     });
   }, [log]);
 
-  // Map metric keys to their state values and setters
-  const metricStateMap: Record<string, { value: number; setter: (value: number) => void }> = {
-    quad: { value: quadSoreness, setter: setQuadSoreness },
-    hamstring: { value: hamstringSoreness, setter: setHamstringSoreness },
-    hip: { value: hipSoreness, setter: setHipSoreness },
-    calf: { value: calfSoreness, setter: setCalfSoreness },
-    shin: { value: shinSoreness, setter: setShinSoreness },
-  };
-
   const handleUpdate = async () => {
     if (!log || isSubmitting) return;
 
     setIsSubmitting(true);
 
     try {
-      // Build soreness object - preserve nulls for metrics not in the original log
-      const sorenessData: Record<string, number | null> = {
-        quad: log.quad_morning !== null && log.quad_morning !== undefined ? quadSoreness : null,
-        hamstring: log.hamstring_morning !== null && log.hamstring_morning !== undefined ? hamstringSoreness : null,
-        hip: log.hip_morning !== null && log.hip_morning !== undefined ? hipSoreness : null,
-        calf: log.calf_morning !== null && log.calf_morning !== undefined ? calfSoreness : null,
-        shin: log.shin_morning !== null && log.shin_morning !== undefined ? shinSoreness : null,
-      };
+      // Build soreness object dynamically - preserve nulls for metrics not in the original log
+      const sorenessData: Record<string, number | null> = {};
+      
+      Object.keys(SORENESS_METRIC_CONFIG).forEach(key => {
+        const logValue = log[`${key}_morning`];
+        // Only include value if it existed in the original log
+        if (logValue !== null && logValue !== undefined) {
+          sorenessData[key] = sorenessValues[key as SorenessMetricKey];
+        } else {
+          sorenessData[key] = null;
+        }
+      });
 
-      const readinessScore = calculateReadinessScore({
+      // Build readiness score params dynamically
+      const readinessParams: any = {
         sleep,
         energy,
         stress,
         hydration,
         nutrition,
-        quad: sorenessData.quad,
-        hamstring: sorenessData.hamstring,
-        hip: sorenessData.hip,
-        calf: sorenessData.calf,
-        shin: sorenessData.shin,
-      });
+        ...sorenessData
+      };
 
-      const updatedLog = {
+      const readinessScore = calculateReadinessScore(readinessParams);
+
+      // Build the update object dynamically
+      const updatedLog: any = {
         sleep_morning: sleep,
         energy_morning: energy,
         stress_morning: stress,
         hydration_morning: hydration,
         nutrition_morning: nutrition,
-        quad_morning: sorenessData.quad,
-        hamstring_morning: sorenessData.hamstring,
-        hip_morning: sorenessData.hip,
-        calf_morning: sorenessData.calf,
-        shin_morning: sorenessData.shin,
         notes_morning: notes,
         readiness_score: readinessScore,
       };
+
+      // Add all soreness metrics dynamically
+      Object.entries(sorenessData).forEach(([key, value]) => {
+        updatedLog[`${key}_morning`] = value;
+      });
 
       // Update in Supabase
       const { data, error } = await supabase
@@ -168,7 +144,6 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
           {currentPage === 1 && (
             <div className="readiness-page">
               <div className="metrics-container">
-                {/* Sleep Quality */}
                 <div className="metric-item">
                   <label>
                     <Moon size={20} className="metric-icon" />
@@ -190,7 +165,6 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
                   </div>
                 </div>
 
-                {/* Energy Level */}
                 <div className="metric-item">
                   <label>
                     <BatteryMedium size={20} className="metric-icon" />
@@ -212,7 +186,6 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
                   </div>
                 </div>
 
-                {/* Stress Level */}
                 <div className="metric-item">
                   <label>
                     <Zap size={20} className="metric-icon" />
@@ -234,7 +207,6 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
                   </div>
                 </div>
 
-                {/* Hydration */}
                 <div className="metric-item">
                   <label>
                     <GlassWater size={20} className="metric-icon" />
@@ -256,7 +228,6 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
                   </div>
                 </div>
 
-                {/* Nutrition */}
                 <div className="metric-item">
                   <label>
                     <Beef size={20} className="metric-icon" />
@@ -287,35 +258,32 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
             </div>
           )}
 
-          {/* Page 2: Soreness */}
+          {/* Page 2: Soreness - Fully Dynamic */}
           {currentPage === 2 && (
             <div className="readiness-page">
               <div className="metrics-container">
-                {visibleSorenessMetrics.map(({ key, label }) => {
-                  const { value, setter } = metricStateMap[key];
-                  return (
-                    <div key={key} className="metric-item">
-                      <label>
-                        <Activity size={20} className="metric-icon" />
-                        <span>{label}</span>
-                      </label>
-                      <div className="slider-container">
-                        <input
-                          type="range"
-                          min="1"
-                          max="5"
-                          value={value}
-                          onChange={(e) => setter(parseInt(e.target.value))}
-                          className={`metric-slider slider-value-${value}`}
-                        />
-                        <div className="slider-labels">
-                          <span>Severe</span>
-                          <span>None</span>
-                        </div>
+                {visibleSorenessMetrics.map(({ key, label }) => (
+                  <div key={key} className="metric-item">
+                    <label>
+                      <Activity size={20} className="metric-icon" />
+                      <span>{label}</span>
+                    </label>
+                    <div className="slider-container">
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        value={sorenessValues[key as SorenessMetricKey]}
+                        onChange={(e) => updateSorenessValue(key as SorenessMetricKey, parseInt(e.target.value))}
+                        className={`metric-slider slider-value-${sorenessValues[key as SorenessMetricKey]}`}
+                      />
+                      <div className="slider-labels">
+                        <span>Severe</span>
+                        <span>None</span>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
 
               <div className="button-group">

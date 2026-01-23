@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import EditLogModal from './EditLogModal';
+import { SORENESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
 
 interface Props {
   dailyLogs: any[];
@@ -118,17 +119,11 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Determine which soreness metrics are available in the log
+  // Determine which soreness metrics are available in the log - dynamically from config
   const availableSorenessMetrics = useMemo(() => {
     if (!todaysLog) return [];
     
-    const sorenessMetrics = [
-      { key: 'quad', label: 'Quads' },
-      { key: 'hamstring', label: 'Hamstrings' },
-      { key: 'hip', label: 'Hips' },
-      { key: 'calf', label: 'Calves' },
-      { key: 'shin', label: 'Shins' }
-    ];
+    const sorenessMetrics = getSorenessMetricsShortView();
     
     // Filter to only include metrics that exist in the log (not null/undefined)
     return sorenessMetrics.filter(({ key }) => {
@@ -142,13 +137,13 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   }, [currentDate, dailyLogs]);
 
   const loadLogData = () => {
-    // Find today's log from dailyLogs prop (NOT sessionStorage)
+    // Find today's log from dailyLogs prop
     const todayLog = dailyLogs.find((log: any) => log.date === currentDate);
     if (!todayLog) return;
     
     setTodaysLog(todayLog);
     
-    // Calculate yesterday change using dailyLogs prop
+    // Calculate yesterday change
     const yesterday = new Date(currentDate);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayDate = yesterday.toISOString().split('T')[0];
@@ -161,7 +156,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       setYesterdayChange(0);
     }
     
-    // Calculate week change (average of previous 6 days) using dailyLogs prop
+    // Calculate week change (average of previous 6 days)
     const weekAgo = new Date(currentDate);
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekAgoDate = weekAgo.toISOString().split('T')[0];
@@ -178,7 +173,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       setWeekChange(0);
     }
     
-    // Build metrics array - only include metrics that exist in the log
+    // Build metrics array dynamically
     const metrics = [
       { name: 'Sleep', value: todayLog.sleep_morning },
       { name: 'Energy', value: todayLog.energy_morning },
@@ -187,19 +182,12 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       { name: 'Nutrition', value: todayLog.nutrition_morning }
     ];
     
-    // Add soreness metrics only if they exist
-    const sorenessMetrics = [
-      { key: 'quad', name: 'Quads' },
-      { key: 'hamstring', name: 'Hamstrings' },
-      { key: 'hip', name: 'Hips' },
-      { key: 'calf', name: 'Calves' },
-      { key: 'shin', name: 'Shins' }
-    ];
-    
-    sorenessMetrics.forEach(({ key, name }) => {
+    // Add soreness metrics dynamically from config - only if they exist in the log
+    const sorenessMetricsShort = getSorenessMetricsShortView();
+    sorenessMetricsShort.forEach(({ key, label }) => {
       const value = todayLog[`${key}_morning`];
       if (value !== null && value !== undefined) {
-        metrics.push({ name, value });
+        metrics.push({ name: label, value });
       }
     });
     

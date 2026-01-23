@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar, Cell } from 'recharts';
 import { X, TrendingUp, TrendingDown } from 'lucide-react';
+import { SORENESS_METRIC_CONFIG } from '@/config/metrics';
 
 interface DailyLog {
   id: number;
@@ -27,30 +28,6 @@ interface Props {
   userProfile: any;
   refreshUserData: () => void;
 }
-
-// Metric configuration - same as MorningReadiness
-const METRIC_CONFIG = {
-  quad_morning: {
-    label: "Quad Soreness",
-    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
-  },
-  hamstring_morning: {
-    label: "Hamstring Soreness",
-    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
-  },
-  hip_morning: {
-    label: "Hip Soreness",
-    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
-  },
-  calf_morning: {
-    label: "Calf Soreness",
-    eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
-  },
-  shin_morning: {
-    label: "Shin Soreness",
-    eventTypes: ["runner", "hurdler"],
-  },
-};
 
 // Base metrics that are always available
 const BASE_METRICS = [
@@ -131,7 +108,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
   const [metric1, setMetric1] = useState<string | null>('readiness_score');
   const [metric2, setMetric2] = useState<string | null>('sleep_morning');
 
-  // Get available metrics based on user's event types
+  // Get available metrics based on user's event types - dynamically from config
   const availableMetrics = useMemo(() => {
     const metrics = [...BASE_METRICS];
     
@@ -141,14 +118,17 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
     const userEventTypes = userProfile.event_types;
 
-    // Add soreness metrics that match user's event types
-    for (const [key, config] of Object.entries(METRIC_CONFIG)) {
+    // Add soreness metrics dynamically from config
+    for (const [key, config] of Object.entries(SORENESS_METRIC_CONFIG)) {
       const shouldShow = config.eventTypes.some(eventType => 
         userEventTypes.includes(eventType)
       );
       
       if (shouldShow) {
-        metrics.push({ value: key, label: config.label });
+        metrics.push({ 
+          value: `${key}_morning`, 
+          label: config.label 
+        });
       }
     }
 

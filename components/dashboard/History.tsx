@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { getSorenessMetricsShortView } from "@/config/metrics";
 
 interface Props {
   dailyLogs: any[];
@@ -28,15 +29,9 @@ function formatDate(dateString: string): string {
   return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
 }
 
-// Get available soreness metrics for a specific log
+// Get available soreness metrics for a specific log - dynamically from config
 function getAvailableSorenessMetrics(log: any) {
-  const sorenessMetrics = [
-    { key: 'quad', label: 'Quads' },
-    { key: 'hamstring', label: 'Hamstrings' },
-    { key: 'hip', label: 'Hips' },
-    { key: 'calf', label: 'Calves' },
-    { key: 'shin', label: 'Shins' }
-  ];
+  const sorenessMetrics = getSorenessMetricsShortView();
   
   return sorenessMetrics.filter(({ key }) => {
     const value = log[`${key}_morning`];
@@ -113,7 +108,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
                       <span className="metric-label">Hydration {log.hydration_morning}/5</span>
                     </div>
 
-                    {/* Soreness metrics (conditionally shown) */}
+                    {/* Soreness metrics (conditionally shown) - dynamically from config */}
                     {availableSorenessMetrics.map(({ key, label }) => (
                       <div key={key} className="metric-item">
                         <span
