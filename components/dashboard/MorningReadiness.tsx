@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
@@ -9,6 +9,7 @@ interface MorningReadinessProps {
   onComplete: () => void;
   currentDate: string;
   userProfile: any;
+  existingLog?: any; // Optional - if provided, we're editing; if not, we're creating
 }
 
 // Icon mapping for readiness metrics
@@ -20,7 +21,7 @@ const READINESS_ICONS = {
   nutrition: Beef,
 };
 
-export default function MorningReadiness({ onComplete, currentDate, userProfile }: MorningReadinessProps) {
+export default function MorningReadiness({ onComplete, currentDate, userProfile, existingLog }: MorningReadinessProps) {
   const { user } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +30,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
   const [readinessValues, setReadinessValues] = useState<Record<ReadinessMetricKey, number>>(() => {
     const initial: Record<string, number> = {};
     Object.keys(READINESS_METRIC_CONFIG).forEach(key => {
-      initial[key] = 3;
+      initial[key] = existingLog?.[`${key}_morning`] || 3;
     });
     return initial as Record<ReadinessMetricKey, number>;
   });
@@ -39,13 +40,13 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
     setReadinessValues(prev => ({ ...prev, [key]: value }));
   };
 
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(existingLog?.notes_morning || "");
 
   // Dynamic soreness state - automatically includes all metrics from config
   const [sorenessValues, setSorenessValues] = useState<Record<SorenessMetricKey, number>>(() => {
     const initial: Record<string, number> = {};
     Object.keys(SORENESS_METRIC_CONFIG).forEach(key => {
-      initial[key] = 3;
+      initial[key] = existingLog?.[`${key}_morning`] || 3;
     });
     return initial as Record<SorenessMetricKey, number>;
   });
@@ -105,7 +106,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
       const readinessScore = calculateReadinessScore(readinessParams);
 
       // Build the database log object dynamically
-      const newLog: any = {
+      const logData: any = {
         user_id: user.id,
         date: currentDate,
         morning_complete: true,
@@ -115,28 +116,54 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
 
       // Add all readiness metrics dynamically
       Object.entries(readinessValues).forEach(([key, value]) => {
-        newLog[`${key}_morning`] = value;
+        logData[`${key}_morning`] = value;
       });
 
       // Add all soreness metrics dynamically
       Object.entries(sorenessData).forEach(([key, value]) => {
-        newLog[`${key}_morning`] = value;
+        logData[`${key}_morning`] = value;
       });
 
-      // Insert into Supabase
-      const { data, error } = await supabase
-        .from("daily_logs")
-        .insert(newLog)
-        .select()
-        .single();
+      let result;
 
-      if (error) throw error;
+      if (existingLog) {
+        // UPDATE existing log
+        const { data, error } = await supabase
+          .from("daily_logs")
+          .update(logData)
+          .eq("id", existingLog.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      } else {
+        // INSERT new log
+        const { data, error } = await supabase
+          .from("daily_logs")
+          .insert(logData)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      }
 
       // Update sessionStorage
       const cachedLogs = sessionStorage.getItem('dailyLogs');
       const dailyLogs = cachedLogs ? JSON.parse(cachedLogs) : [];
       
-      dailyLogs.unshift(data);
+      if (existingLog) {
+        // Replace the existing log
+        const index = dailyLogs.findIndex((log: any) => log.id === existingLog.id);
+        if (index !== -1) {
+          dailyLogs[index] = result;
+        }
+      } else {
+        // Add new log to the beginning
+        dailyLogs.unshift(result);
+      }
+      
       sessionStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
 
       onComplete();
@@ -152,7 +179,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
     <div className="main-container">
       <div className="main-heading">
         <h1>Hi, {userProfile?.first_name || 'there'}!</h1>
-        <h3>How are you feeling this morning?</h3>
+        <h3>{existingLog ? 'Update your morning readiness' : 'How are you feeling this morning?'}</h3>
       </div>
 
       {/* Page 1: General Readiness - Fully Dynamic */}
@@ -260,7 +287,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile 
               onClick={handleFinalSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? "Submitting..." : (existingLog ? "Update" : "Submit")}
             </button>
           </div>
         </div>

@@ -1,3 +1,4 @@
+// components/dashboard/Readiness.tsx
 import { useState, useEffect } from "react";
 import MorningReadiness from "./MorningReadiness";
 import MorningOverview from "./MorningOverview";
@@ -5,7 +6,7 @@ import MorningOverview from "./MorningOverview";
 interface Props {
   dailyLogs: any[];
   userProfile: any;
-  refreshUserData?: () => void; // Add this
+  refreshUserData?: () => void;
 }
 
 export default function Readiness({ dailyLogs, userProfile, refreshUserData }: Props) {
@@ -13,6 +14,7 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
   const [currentDate, setCurrentDate] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
   const [hasCheckedToday, setHasCheckedToday] = useState(false);
+  const [todaysLog, setTodaysLog] = useState<any>(null);
 
   useEffect(() => {
     calculateCurrentDate();
@@ -58,8 +60,11 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
   const checkForTodaysLog = () => {
     if (!currentDate || !dailyLogs) return;
 
-    const todaysLog = dailyLogs.find(log => log.date === currentDate);
-    setShowOverview(!!todaysLog);
+    const log = dailyLogs.find(log => log.date === currentDate);
+    setTodaysLog(log || null);
+    
+    // Show overview if log exists AND morning_complete is true
+    setShowOverview(!!(log && log.morning_complete));
     setHasCheckedToday(true);
   };
 
@@ -82,15 +87,20 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
           onComplete={handleMorningComplete}
           currentDate={currentDate}
           userProfile={userProfile}
+          existingLog={todaysLog} // Pass existing log if it exists
         />
       )}
 
       {hasCheckedToday && showOverview && (
-        <MorningOverview currentDate={currentDate} dailyLogs={dailyLogs} userProfile={userProfile} refreshUserData={refreshUserData}/>
+        <MorningOverview 
+          currentDate={currentDate} 
+          dailyLogs={dailyLogs} 
+          userProfile={userProfile} 
+          refreshUserData={refreshUserData}
+        />
       )}
 
       {!hasCheckedToday && <div className="loading"></div>}
-
     </div>
   );
 }

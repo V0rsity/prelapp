@@ -7,7 +7,7 @@ import { MoreVertical, Clock, Zap, TrendingUp, RefreshCw } from "lucide-react";
 import { DailyLog, UserProfile } from '@/types/models';
 
 // Import components
-import Readiness from "../components/dashboard/Readiness";
+import Readiness from "../components/dashboard/TodaysLog";
 import History from "../components/dashboard/History";
 import Trends from "../components/dashboard/Trends";
 import ProfileSelectionModal from "../components/dashboard/ProfileSelectionModal";
@@ -209,7 +209,7 @@ export default function Dashboard() {
             className={activeTab === "readiness" ? "active" : ""}
           >
             <Zap size={20} />
-            <span>Readiness</span>
+            <span>Today's Log</span>
           </button>
           <button 
             onClick={() => handleTabSwitch("trends")}

@@ -229,7 +229,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   return (
     <div className="morning-overview main-container">
       <div className="main-heading">
-        <h1>Morning Overview</h1>
+        <h1>Readiness Overview</h1>
         <h3>Based on how you feel!</h3>
       </div>
       
@@ -266,8 +266,8 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
         
         <p className="readiness-message">
           {todaysLog.readiness_score >= 80 ? 'You are prepared for the day!' : 
-           todaysLog.readiness_score >= 60 ? 'You are moderately ready.' : 
-           'Take it easy today.'}
+            todaysLog.readiness_score >= 60 ? 'You are moderately ready.' : 
+            'Take it easy today.'}
         </p>
       </div>
       
