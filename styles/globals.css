@@ -13,6 +13,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Mobile View (Default) */
@@ -440,9 +441,6 @@ html, body {
   align-items: center;
   margin-bottom: 1.25rem;
 }
-.history-log .main-heading {
-  padding-bottom: 0;
-}
 
 .history-log h1 {
   font-size: 1.6rem;
@@ -454,14 +452,17 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.readiness-history {
+  padding: 0 0.5rem
+}
+
 .readiness-badge {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   flex-direction: row;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
   align-items: center;
-  gap: 0.25rem;
-  margin-bottom: .5rem;
-  padding: .5rem .25rem;
 }
 
 .readiness-label {
@@ -592,7 +593,7 @@ html, body {
 
 /* Readiness Score Card */
 .morning-overview .readiness-score-card {
-  background: #587087;
+  background: rgba(56, 73, 89, 0.4);
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
@@ -793,31 +794,31 @@ html, body {
 }
 
 /* Metric Selectors */
-.trends-section .metric-selectors {
+.metric-selectors {
   display: flex;
   flex-direction: column;
 }
 
-.trends-section .metric-selector-group {
+.metric-selector-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.trends-section .metric-selector-label {
+.metric-selector-label {
   color: #FFFFFF;
   font-weight: 500;
   font-size: 0.875rem;
 }
 
-.trends-section .metric-selector-wrapper {
+.metric-selector-wrapper {
   display: flex;
   gap: 0.5rem;
   height: 2.5rem;
 }
 
-.trends-section .metric-select {
+.metric-select {
   flex: 1;
   padding: 0.625rem 0.75rem;
   border-radius: 0.5rem;
@@ -830,13 +831,13 @@ html, body {
   box-sizing: border-box;
 }
 
-.trends-section .metric-select:focus {
+.metric-select:focus {
   outline: 2px solid #384959;
   outline-offset: 2px;
   background: rgba(255, 255, 255, 1);
 }
 
-.trends-section .metric-select option {
+.metric-select option {
   color: #384959;
 }
 
@@ -1143,4 +1144,177 @@ html, body {
 
 .dashboard-wrapper.modal-active .bottom-nav button {
   cursor: not-allowed;
+}
+
+/* Training Log Styles */
+.training-log-container-closed {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.training-log.main-container {
+  padding: 1.25rem 1.5rem;
+  color: white;
+}
+
+.training-log-container-closed:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.training-log-header {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.training-log .subheading {
+  font-weight: 300;
+  font-size: 1.125rem;
+}
+
+.training-log-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.training-log-icon {
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.training-section {
+  margin-bottom: 24px;
+}
+
+.training-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.training-types-container {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  background: rgba(56, 73, 89, 0.5);
+  border-radius: 16px;
+  padding: 0.75rem;
+  min-height: 2.5rem;
+  padding-bottom: 3rem; /* Make room for the button at bottom */
+}
+
+.training-type-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.training-type-pill.active {
+  padding-right: 12px;
+}
+
+.pill-x {
+  margin-left: 2px;
+}
+
+.add-pill-wrapper {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  transform: none; /* Remove the Y transform */
+}
+
+.add-pill-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #384959;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pill-dropdown {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 8px;
+  background: rgba(50, 60, 80, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 150px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pill-dropdown-item {
+  padding: 12px 16px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pill-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pill-dropdown-item:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mileage-input {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.mileage-input:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.mileage-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Remove number input arrows */
+.mileage-input::-webkit-outer-spin-button,
+.mileage-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.training-log .notes-container {
+  padding: 0;
+}
+
+.training-log .submit-button {
+  margin-right: 0;
 }

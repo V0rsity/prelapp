@@ -179,7 +179,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
     <div className="main-container">
       <div className="main-heading">
         <h1>Hi, {userProfile?.first_name || 'there'}!</h1>
-        <h3>{existingLog ? 'Update your morning readiness' : 'How are you feeling this morning?'}</h3>
+        <h3>How are you feeling today?</h3>
       </div>
 
       {/* Page 1: General Readiness - Fully Dynamic */}
@@ -287,7 +287,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
               onClick={handleFinalSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : (existingLog ? "Update" : "Submit")}
+              {isSubmitting ? "Submitting..." : ("Submit")}
             </button>
           </div>
         </div>

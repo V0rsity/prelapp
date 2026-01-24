@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import MorningReadiness from "./MorningReadiness";
 import MorningOverview from "./MorningOverview";
+import TrainingLog from "./TrainingLog";
 
 interface Props {
   dailyLogs: any[];
@@ -99,6 +100,13 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
           refreshUserData={refreshUserData}
         />
       )}
+
+      <TrainingLog
+        currentDate={currentDate}
+        userProfile={userProfile}
+        existingLog={todaysLog}
+        onComplete={() => refreshUserData && refreshUserData()}
+      />
 
       {!hasCheckedToday && <div className="loading"></div>}
     </div>

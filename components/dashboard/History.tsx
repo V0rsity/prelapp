@@ -61,49 +61,51 @@ export default function History({ dailyLogs, userProfile }: Props) {
         <p>No logs yet.</p>
       ) : (
         dailyLogs.map((log) => {
-          const availableSorenessMetrics = getAvailableSorenessMetrics(log);
-          const totalMetrics = readinessMetrics.length + availableSorenessMetrics.length;
-          
           return (
             <div key={log.id} className="main-container history-log">
               <div className="main-heading">
                 <h1>{formatDate(log.date)}</h1>
-                <div className="readiness-badge" data-readiness={getReadinessLevel(log.readiness_score)}>
-                    <span className="readiness-label">Morning Readiness</span>
-                    <span className="readiness-score">{log.readiness_score}</span>
-                </div>
               </div>
               
-              <div className="log-card">
-                <div className="grid-container">
-                  <div className="metrics-grid" style={{ "--rows": Math.ceil(totalMetrics / 2) } as React.CSSProperties}>
-                    {/* Readiness metrics - dynamically from config */}
-                    {readinessMetrics.map(({ key, label }) => (
-                      <div key={key} className="metric-item">
-                        <span
-                          className="metric-dot"
-                          style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
-                        ></span>
-                        <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
-                      </div>
-                    ))}
-
-                    {/* Soreness metrics (conditionally shown) - dynamically from config */}
-                    {availableSorenessMetrics.map(({ key, label }) => (
-                      <div key={key} className="metric-item">
-                        <span
-                          className="metric-dot"
-                          style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
-                        ></span>
-                        <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
-                      </div>
-                    ))}
+              {log.morning_complete && (
+                <div className="readiness-history">
+                  <div className="readiness-badge" data-readiness={getReadinessLevel(log.readiness_score)}>
+                    <span className="readiness-label">Morning Readiness</span>
+                    <span className="readiness-score">{log.readiness_score}</span>
                   </div>
-                </div>
-              </div>
-              {log.notes_morning && (
-                <div className="log-notes">
-                  <span className="notes-label">Notes:</span> {log.notes_morning}
+                  
+                  <div className="log-card">
+                    <div className="grid-container">
+                      <div className="metrics-grid" style={{ "--rows": Math.ceil((readinessMetrics.length + getAvailableSorenessMetrics(log).length) / 2) } as React.CSSProperties}>
+                        {/* Readiness metrics - dynamically from config */}
+                        {readinessMetrics.map(({ key, label }) => (
+                          <div key={key} className="metric-item">
+                            <span
+                              className="metric-dot"
+                              style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
+                            ></span>
+                            <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
+                          </div>
+                        ))}
+
+                        {/* Soreness metrics (conditionally shown) - dynamically from config */}
+                        {getAvailableSorenessMetrics(log).map(({ key, label }) => (
+                          <div key={key} className="metric-item">
+                            <span
+                              className="metric-dot"
+                              style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
+                            ></span>
+                            <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {log.notes_morning && (
+                    <div className="log-notes">
+                      <span className="notes-label">Notes:</span> {log.notes_morning}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
