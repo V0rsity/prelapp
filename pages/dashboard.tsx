@@ -24,6 +24,12 @@ export default function Dashboard() {
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 1);
+    });
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) {
       router.push("/");
     }
