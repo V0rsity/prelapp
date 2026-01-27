@@ -73,11 +73,11 @@ export const TRAINING_METRIC_CONFIG = {
     inputType: "dropdown" as const,
     defaultValue: 3,
     options: {
-      1: { label: "Recovery" },
-      2: { label: "Easy" },
-      3: { label: "Moderate" },
-      4: { label: "Difficult" },
-      5: { label: "Intense" },
+      1: { label: "Recovery", color: "#0000FF"},
+      2: { label: "Easy", color: "#22C55E" },
+      3: { label: "Moderate", color: "#FFFF00" },
+      4: { label: "Difficult", color: "#F97316" },
+      5: { label: "Intense", color: "#EF4444" },
     }
   },
   // training_types is a text array
@@ -144,7 +144,8 @@ export const TRAINING_METRIC_CONFIG = {
       maxValue: 99.99,
       decimalPlaces: 2,
       placeholder: "0.00",
-    }
+    },
+    unitLabel: "miles",
   },
   notes: {
     label: "Training Notes",

@@ -82,7 +82,7 @@ html, body {
 
 /* Main Container */
 .main-container {
-  background: #5d7994; /* 6A89A7 */
+  background: #5d7994;
   padding: .5rem;
   border-radius: 1rem;
   margin: 1rem;
@@ -1317,4 +1317,258 @@ html, body {
 
 .training-log .submit-button {
   margin-right: 0;
+}
+
+/* Training Overview Styles */
+
+.training-overview.main-container {
+  padding: 1.5rem;
+  color: white;
+  gap: 1.12rem;
+}
+
+.training-overview .training-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.training-overview .training-log-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+  margin: 0;
+  margin-bottom: 0.25rem;
+}
+
+.training-overview .edit-icon-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 0.6rem;
+}
+
+.training-overview .edit-icon-overlay:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.training-overview .edit-icon {
+  color: #ffffff;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.training-overview .edit-icon:hover {
+  opacity: 1;
+}
+
+.training-overview-main-subheading {
+  font-weight: 300;
+  font-size: 1.125rem;
+  margin: 0rem 0;
+}
+
+.training-overview-subheading {
+  font-size: 1.25rem;
+  color: #ffffff;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Consistency Grid - with darker background */
+.consistency-section {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+}
+
+.consistency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.consistency-item {
+  text-align: center;
+}
+
+.consistency-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.consistency-label {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+/* Intensity Section - 7 Day Grid */
+
+.intensity-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.intensity-header-row .training-overview-subheading {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.intensity-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.intensity-7day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.intensity-day-box {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.375rem;
+}
+
+.intensity-footer-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.375rem;
+}
+
+.intensity-timeline {
+  font-size: 0.75rem;
+  grid-column: 1 / 7;
+}
+
+.intensity-today-arrow {
+  font-size: 1.125rem;
+  color: #ffffff;
+  line-height: 1;
+  text-align: center;
+  grid-column: 7 / 8;
+}
+
+.intensity-color-dot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.intensity-label {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+/* Workout List */
+.workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding-left: 0.5rem;
+}
+
+.workout-item {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.625rem;
+  font-size: 1.125rem;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+.workout-bullet {
+  color: #ffffff;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.workout-item-type {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.workout-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.workout-item-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.workout-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding-left: 1.875rem;
+}
+
+.workout-sub-bullet {
+  color: #d1d5db;
+  font-size: 1rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.workout-detail-separator {
+  color: #9ca3af;
+  margin: 0 0.25rem;
+}
+
+/* Notes Section */
+.notes-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 0;
+  padding: 0 0.5rem;
+}
+
+/* View Button - plain text style */
+.view-button {
+  width: 100%;
+  background-color: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.view-button:hover {
+  opacity: 0.8;
 }

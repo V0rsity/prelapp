@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import MorningReadiness from "./MorningReadiness";
 import MorningOverview from "./MorningOverview";
 import TrainingLog from "./TrainingLog";
+import TrainingOverview from "./TrainingOverview";
 
 interface Props {
   dailyLogs: any[];
@@ -77,6 +78,9 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
     }
   };
 
+  // Determine if training is complete
+  const isTrainingComplete = todaysLog?.training_complete === true;
+
   return (
     <div className="readiness-wrapper">
       <div className="date-container">
@@ -88,7 +92,7 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
           onComplete={handleMorningComplete}
           currentDate={currentDate}
           userProfile={userProfile}
-          existingLog={todaysLog} // Pass existing log if it exists
+          existingLog={todaysLog}
         />
       )}
 
@@ -101,12 +105,21 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
         />
       )}
 
-      <TrainingLog
-        currentDate={currentDate}
-        userProfile={userProfile}
-        existingLog={todaysLog}
-        onComplete={() => refreshUserData && refreshUserData()}
-      />
+      {/* Conditionally render TrainingLog or TrainingOverview */}
+      {!isTrainingComplete ? (
+        <TrainingLog
+          currentDate={currentDate}
+          userProfile={userProfile}
+          existingLog={todaysLog}
+          onComplete={() => refreshUserData && refreshUserData()}
+        />
+      ) : (
+        <TrainingOverview
+          existingLog={todaysLog}
+          userProfile={userProfile}
+          dailyLogs={dailyLogs}
+        />
+      )}
 
       {!hasCheckedToday && <div className="loading"></div>}
     </div>
