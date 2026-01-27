@@ -39,7 +39,7 @@ html, body {
 
 /* Dashboard Wrapper */
 .dashboard-wrapper {
-  min-height: 100vh;
+  overflow-y: auto;
   background: #BDDDFC;
   padding-bottom: 80px;
   margin: 0;
