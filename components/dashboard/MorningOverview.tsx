@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import EditLogModal from './EditLogModal';
-import ViewLogModal from './ViewLogModal';
 import { READINESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
+import { SquarePen, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Props {
   dailyLogs: any[];
@@ -37,10 +37,9 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   const [todaysLog, setTodaysLog] = useState<any>(null);
   const [yesterdayChange, setYesterdayChange] = useState(0);
   const [weekChange, setWeekChange] = useState(0);
-  const [greatMetrics, setGreatMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
   const [needsAttentionMetrics, setNeedsAttentionMetrics] = useState<Array<{name: string, value: number, color: string}>>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Get available readiness metrics - dynamically from config (using shortLabel for consistency)
   const availableReadinessMetrics = useMemo(() => {
@@ -62,6 +61,10 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       return value !== null && value !== undefined;
     });
   }, [todaysLog]);
+
+  const totalMetrics = useMemo(() => {
+    return availableReadinessMetrics.length + availableSorenessMetrics.length;
+  }, [availableReadinessMetrics, availableSorenessMetrics]);
 
   useEffect(() => {
     loadLogData();
@@ -107,7 +110,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
     // Build metrics array dynamically from config
     const metrics: Array<{name: string, value: number}> = [];
     
-    // Add readiness metrics dynamically from config (using shortLabel for "Great" and "Needs Attention")
+    // Add readiness metrics dynamically from config (using shortLabel for "Needs Attention")
     Object.entries(READINESS_METRIC_CONFIG).forEach(([key, config]) => {
       const value = todayLog[`${key}_morning`];
       if (value !== null && value !== undefined) {
@@ -124,45 +127,120 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       }
     });
     
-    // Filter and sort for "Great" (scores 4-5)
-    const greatOnes = metrics
-      .filter(m => m.value !== null && m.value >= 4)
-      .sort((a, b) => b.value - a.value)
-      .map(m => ({ ...m, color: getColorForScore(m.value) }));
-    
-    // Take up to 4, but if 3 have same value as first, don't add a fourth
-    const finalGreat = [];
-    for (let i = 0; i < Math.min(4, greatOnes.length); i++) {
-      if (i < 3 || greatOnes[i].value === greatOnes[0].value) {
-        finalGreat.push(greatOnes[i]);
-      }
-    }
-    setGreatMetrics(finalGreat);
-    
     // Filter and sort for "Needs Attention" (scores 1-2)
     const needsAttention = metrics
       .filter(m => m.value !== null && m.value <= 2)
       .sort((a, b) => a.value - b.value)
       .map(m => ({ ...m, color: getColorForScore(m.value) }));
     
-    // Take up to 4, same rules as great
-    const finalNeeds = [];
-    for (let i = 0; i < Math.min(4, needsAttention.length); i++) {
-      if (i < 3 || needsAttention[i].value === needsAttention[0].value) {
-        finalNeeds.push(needsAttention[i]);
-      }
-    }
-    setNeedsAttentionMetrics(finalNeeds);
+    setNeedsAttentionMetrics(needsAttention);
   };
 
   if (!todaysLog) {
     return <div className="loading"></div>;
   }
 
+  // Collapsed view
+  if (!isExpanded) {
+    return (
+      <div className="morning-overview main-container">
+        <div className="main-heading">
+          <div className="readiness-header">
+            <h1>Today's Readiness</h1>
+            <button className="edit-icon-overlay" onClick={() => setIsEditModalOpen(true)}>
+              <SquarePen size={24} className="edit-icon" />
+            </button>
+          </div>
+          <h3>Based on how you feel!</h3>
+        </div>
+        
+        <div className="readiness-score-card">
+          <h2 className="readiness-heading">Readiness Score</h2>
+          
+          <div className="score-display" data-readiness={getReadinessLevel(todaysLog.readiness_score || 0)}>
+            <div className="readiness-score">
+              {todaysLog.readiness_score || 0}
+            </div>
+            
+            <div className="score-changes">
+              <div className="change-item">
+                <div className="change-item-top">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{transform: yesterdayChange >= 0 ? 'rotate(0deg)' : 'rotate(180deg)'}}>
+                    <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="change-value">{Math.abs(yesterdayChange)}%</span>
+                </div>
+                <span className="change-label">Yesterday</span>
+              </div>
+              
+              <div className="change-item">
+                <div className="change-item-top">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{transform: weekChange >= 0 ? 'rotate(0deg)' : 'rotate(180deg)'}}>
+                    <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="change-value">{Math.abs(weekChange)}%</span>
+                </div>
+                <span className="change-label">Week</span>
+              </div>
+            </div>
+          </div>
+          
+          <p className="readiness-message">
+            {todaysLog.readiness_score >= 80 ? 'You are prepared for the day!' : 
+              todaysLog.readiness_score >= 60 ? 'You are moderately ready.' : 
+              'Take it easy today.'}
+          </p>
+        </div>
+        
+        {needsAttentionMetrics.length > 0 && (
+          <div className="metrics-section">
+            <h2>Needs Attention</h2>
+            <div className="metrics-grid">
+              {needsAttentionMetrics.map((metric, idx) => (
+                <div key={idx} className="metric-item">
+                  <span 
+                    className="metric-dot" 
+                    style={{backgroundColor: `var(--color-${metric.color})`}}
+                  ></span>
+                  <span className="metric-label">{metric.name} {metric.value}/5</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* View Button */}
+        <button className="view-button" onClick={() => setIsExpanded(true)}>
+          <ChevronDown size={24} />
+          View Readiness Log
+          <ChevronDown size={24} />
+        </button>
+
+        <EditLogModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          log={todaysLog}
+          userProfile={userProfile}
+          onSave={() => {
+            if (refreshUserData) {
+              refreshUserData();
+            }
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Expanded view
   return (
     <div className="morning-overview main-container">
       <div className="main-heading">
-        <h1>Readiness Overview</h1>
+        <div className="readiness-header">
+          <h1>Today's Readiness</h1>
+          <button className="edit-icon-overlay" onClick={() => setIsEditModalOpen(true)}>
+            <SquarePen size={24} className="edit-icon" />
+          </button>
+        </div>
         <h3>Based on how you feel!</h3>
       </div>
       
@@ -204,23 +282,6 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
         </p>
       </div>
       
-      {greatMetrics.length > 0 && (
-        <div className="metrics-section">
-          <h2>Great</h2>
-          <div className="metrics-grid">
-            {greatMetrics.map((metric, idx) => (
-              <div key={idx} className="metric-item">
-                <span 
-                  className="metric-dot" 
-                  style={{backgroundColor: `var(--color-${metric.color})`}}
-                ></span>
-                <span className="metric-label">{metric.name} {metric.value}/5</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
       {needsAttentionMetrics.length > 0 && (
         <div className="metrics-section">
           <h2>Needs Attention</h2>
@@ -237,31 +298,47 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
           </div>
         </div>
       )}
-      
-      <div className="action-buttons">
-        <button 
-          className="secondary-button"
-          onClick={() => setIsEditModalOpen(true)}
-        >
-          Edit Log
-        </button>
-        <button 
-          className="primary-button" 
-          onClick={() => setIsModalOpen(true)}
-        >
-          View Log
-        </button>
+
+      {/* Full Log Details */}
+      <div className="metrics-section">
+          <h2>Full Log</h2>
       </div>
-      <ViewLogModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        log={todaysLog}
-        formatDate={formatDate}
-        getReadinessLevel={getReadinessLevel}
-        getColorForScore={getColorForScore}
-        availableReadinessMetrics={availableReadinessMetrics}
-        availableSorenessMetrics={availableSorenessMetrics}
-      />
+      <div className="log-card">
+        <div className="grid-container history-log">
+          <div className="metrics-grid" style={{ "--rows": Math.ceil(totalMetrics / 2) } as React.CSSProperties}>
+            {/* Readiness metrics - dynamically from config */}
+            {availableReadinessMetrics.map(({ key, label }) => (
+              <div key={key} className="metric-item">
+                <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(todaysLog[`${key}_morning`])})` }}></span>
+                <span className="metric-label">{label} {todaysLog[`${key}_morning`]}/5</span>
+              </div>
+            ))}
+            
+            {/* Soreness metrics - dynamically from config */}
+            {availableSorenessMetrics.map(({ key, label }) => (
+              <div key={key} className="metric-item">
+                <span className="metric-dot" style={{ backgroundColor: `var(--color-${getColorForScore(todaysLog[`${key}_morning`])})` }}></span>
+                <span className="metric-label">{label} {todaysLog[`${key}_morning`]}/5</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {todaysLog.notes_morning && (
+        <div>
+          <h3 className="training-overview-subheading">Notes</h3>
+          <p className="notes-text">{todaysLog.notes_morning}</p>
+        </div>
+      )}
+
+      {/* Hide Button */}
+      <button className="view-button" onClick={() => setIsExpanded(false)}>
+        <ChevronUp size={24} />
+        Hide Readiness Log
+        <ChevronUp size={24} />
+      </button>
+
       <EditLogModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

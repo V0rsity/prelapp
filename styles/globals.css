@@ -580,8 +580,14 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.readiness-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .morning-overview .main-heading {
-  padding: .25rem;
+  padding: 0;
 }
 
 .morning-overview .main-heading h1 {
@@ -677,6 +683,10 @@ html, body {
   color: white;
   margin: 0;
   font-weight: 500;
+}
+
+.morning-overview .log-card {
+  margin: 0;
 }
 
 /* Metrics Section */
@@ -1343,7 +1353,7 @@ html, body {
   margin-bottom: 0.25rem;
 }
 
-.training-overview .edit-icon-overlay {
+.edit-icon-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1351,19 +1361,21 @@ html, body {
   height: 2.25rem;
   width: 2.25rem;
   border-radius: 0.6rem;
+  border: none;
+  transition: all 0.2s;
 }
 
-.training-overview .edit-icon-overlay:hover {
+.edit-icon-overlay:hover {
     background: rgba(0, 0, 0, 0.4);
 }
 
-.training-overview .edit-icon {
+.edit-icon {
   color: #ffffff;
   cursor: pointer;
   opacity: 0.9;
 }
 
-.training-overview .edit-icon:hover {
+.edit-icon:hover {
   opacity: 1;
 }
 
@@ -1386,7 +1398,7 @@ html, body {
 /* Consistency Grid - with darker background */
 .consistency-section {
   background-color: rgba(0, 0, 0, 0.2);
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 0.75rem;
 }
 

@@ -364,8 +364,8 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs }
         <div className="consistency-section">
           <div className="consistency-grid">
             <div className="consistency-item">
-              <div className="consistency-value">{consistencyStats.streak} {consistencyStats.streak === 1 ? 'day' : 'days'}</div>
-              <div className="consistency-label">Streak</div>
+              <div className="consistency-value">{consistencyStats.streak}</div>
+              <div className="consistency-label">{consistencyStats.streak === 1 ? 'Day' : 'Days'} Streak</div>
             </div>
             <div className="consistency-item">
               <div className="consistency-value">{consistencyStats.past7Days} / 7</div>
@@ -436,8 +436,8 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs }
       <div className="consistency-section">
         <div className="consistency-grid">
           <div className="consistency-item">
-            <div className="consistency-value">{consistencyStats.streak} {consistencyStats.streak === 1 ? 'day' : 'days'}</div>
-            <div className="consistency-label">Streak</div>
+            <div className="consistency-value">{consistencyStats.streak}</div>
+            <div className="consistency-label">{consistencyStats.streak === 1 ? 'Day' : 'Days'} Streak</div>
           </div>
           <div className="consistency-item">
             <div className="consistency-value">{consistencyStats.past7Days} / 7</div>
