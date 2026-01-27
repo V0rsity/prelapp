@@ -502,20 +502,6 @@ html, body {
   border: .5rem solid var(--color-red);
 }
 
-/* Desktop View (Min-width 1024px) */
-@media (min-width: 1024px) {
-  .main-content {
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: stretch;
-    width: 25%;
-  }
-  .desktop-wrapper {
-    display: flex;
-    justify-content: center;
-  }
-}
-
 .history-log .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -981,6 +967,10 @@ html, body {
   overflow-y: auto;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content .main-heading {
+  padding: 0;
 }
 
 .modal-close {
@@ -1583,4 +1573,31 @@ html, body {
 
 .view-button:hover {
   opacity: 0.8;
+}
+
+/* Edit Training Modal */
+
+.modal-content .training-page {
+  margin-top: 1rem;
+}
+
+.modal-content .training-page .notes-container{
+  margin-top: 0;
+}
+
+/* Desktop View (Min-width 1024px) */
+@media (min-width: 1024px) {
+  .main-content {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: stretch;
+    width: 25%;
+  }
+  .desktop-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  .modal-content {
+    width: 25%;
+  }
 }

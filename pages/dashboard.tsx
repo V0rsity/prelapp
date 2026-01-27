@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -140,7 +141,7 @@ export default function Dashboard() {
     return <div className="loading-content"></div>;
   }
 
-  const props = { dailyLogs, userProfile, refreshUserData } as any;
+  const props = { dailyLogs, userProfile, refreshUserData, setIsAnyModalOpen } as any;
   // It is important that this always returns all the tabs so the state is saved between them!
   return (
     <>
@@ -160,7 +161,7 @@ export default function Dashboard() {
 };
 
   return (
-    <div className={`dashboard-wrapper ${showProfileModal ? 'modal-active' : ''}`}>
+    <div className={`dashboard-wrapper ${showProfileModal || isAnyModalOpen ? 'modal-active' : ''}`}>
       {showProfileModal && userProfile && (
         <ProfileSelectionModal 
           userId={userProfile.id}

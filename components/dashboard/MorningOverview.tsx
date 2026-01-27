@@ -8,6 +8,7 @@ interface Props {
   userProfile: any;
   currentDate: string;
   refreshUserData?: () => void;
+  setIsAnyModalOpen?: (isOpen: boolean) => void;
 }
 
 function getColorForScore(score: number): string {
@@ -33,7 +34,7 @@ function formatDate(dateString: string): string {
   return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
 }
 
-export default function MorningOverview({ dailyLogs, userProfile, currentDate, refreshUserData }: Props) {
+export default function MorningOverview({ dailyLogs, userProfile, currentDate, refreshUserData, setIsAnyModalOpen }: Props) {
   const [todaysLog, setTodaysLog] = useState<any>(null);
   const [yesterdayChange, setYesterdayChange] = useState(0);
   const [weekChange, setWeekChange] = useState(0);
@@ -69,6 +70,23 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
   useEffect(() => {
     loadLogData();
   }, [currentDate, dailyLogs]);
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+    setIsAnyModalOpen?.(true);
+  };
+
+  const handleModalClose = () => {
+    setIsEditModalOpen(false);
+    setIsAnyModalOpen?.(false);
+  };
+
+  const handleModalSave = () => {
+    if (refreshUserData) {
+      refreshUserData();
+    }
+    setIsAnyModalOpen?.(false);
+  };
 
   const loadLogData = () => {
     // Find today's log from dailyLogs prop
@@ -147,7 +165,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
         <div className="main-heading">
           <div className="readiness-header">
             <h1>Today's Readiness</h1>
-            <button className="edit-icon-overlay" onClick={() => setIsEditModalOpen(true)}>
+            <button className="edit-icon-overlay" onClick={handleEditClick}>
               <SquarePen size={24} className="edit-icon" />
             </button>
           </div>
@@ -218,14 +236,10 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
 
         <EditLogModal
           isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
+          onClose={handleModalClose}
           log={todaysLog}
           userProfile={userProfile}
-          onSave={() => {
-            if (refreshUserData) {
-              refreshUserData();
-            }
-          }}
+          onSave={handleModalSave}
         />
       </div>
     );
@@ -237,7 +251,7 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
       <div className="main-heading">
         <div className="readiness-header">
           <h1>Today's Readiness</h1>
-          <button className="edit-icon-overlay" onClick={() => setIsEditModalOpen(true)}>
+          <button className="edit-icon-overlay" onClick={handleEditClick}>
             <SquarePen size={24} className="edit-icon" />
           </button>
         </div>
@@ -341,14 +355,10 @@ export default function MorningOverview({ dailyLogs, userProfile, currentDate, r
 
       <EditLogModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={handleModalClose}
         log={todaysLog}
         userProfile={userProfile}
-        onSave={() => {
-          if (refreshUserData) {
-            refreshUserData();
-          }
-        }}
+        onSave={handleModalSave}
       />
     </div>
   );

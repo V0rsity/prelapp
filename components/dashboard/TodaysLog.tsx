@@ -8,10 +8,11 @@ import TrainingOverview from "./TrainingOverview";
 interface Props {
   dailyLogs: any[];
   userProfile: any;
-  refreshUserData?: () => void;
+  refreshUserData: () => void;
+  setIsAnyModalOpen?: (isOpen: boolean) => void;
 }
 
-export default function Readiness({ dailyLogs, userProfile, refreshUserData }: Props) {
+export default function Readiness({ dailyLogs, userProfile, refreshUserData, setIsAnyModalOpen }: Props) {
   const [showOverview, setShowOverview] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
   const [formattedDate, setFormattedDate] = useState("");
@@ -102,6 +103,7 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
           dailyLogs={dailyLogs} 
           userProfile={userProfile} 
           refreshUserData={refreshUserData}
+          setIsAnyModalOpen={setIsAnyModalOpen}
         />
       )}
 
@@ -118,6 +120,8 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData }: P
           existingLog={todaysLog}
           userProfile={userProfile}
           dailyLogs={dailyLogs}
+          onUpdate={refreshUserData}
+          setIsAnyModalOpen={setIsAnyModalOpen}
         />
       )}
 

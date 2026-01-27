@@ -2,15 +2,19 @@
 import { useState } from "react";
 import { SquarePen, ChevronDown, ChevronUp } from "lucide-react";
 import { TRAINING_METRIC_CONFIG, shouldShowField } from "@/config/metrics";
+import EditTrainingModal from "./EditTrainingModal";
 
 interface TrainingOverviewProps {
   existingLog: any;
   userProfile: any;
   dailyLogs: any[];
+  onUpdate: () => void;
+  setIsAnyModalOpen?: (isOpen: boolean) => void;
 }
 
-export default function TrainingOverview({ existingLog, userProfile, dailyLogs }: TrainingOverviewProps) {
+export default function TrainingOverview({ existingLog, userProfile, dailyLogs, onUpdate, setIsAnyModalOpen }: TrainingOverviewProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Build form state from existing log for dependency checking
   const formState: Record<string, any> = {};
@@ -340,6 +344,21 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs }
     });
   };
 
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+    setIsAnyModalOpen?.(true); 
+  };
+
+  const handleModalClose = () => {
+    setIsEditModalOpen(false);
+    setIsAnyModalOpen?.(false);
+  };
+
+  const handleModalSave = () => {
+    onUpdate();
+    setIsAnyModalOpen?.(false);
+  };
+
   const intensityData = getIntensityData();
   const workoutDetailFields = getWorkoutDetailFields();
   const last7Days = getLast7DaysIntensity();
@@ -348,18 +367,102 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs }
   // Collapsed view
   if (!isExpanded) {
     return (
-      <div className="main-container training-overview collapsed">
-        <div>
-        <div className="training-log-header">
-            <h1 className="training-log-title">Today's Training</h1>
-            <div className="edit-icon-overlay">
+      <>
+        <div className="main-container training-overview collapsed">
+          <div>
+            <div className="training-log-header">
+              <h1 className="training-log-title">Today's Training</h1>
+              <div className="edit-icon-overlay" onClick={handleEditClick}>
                 <SquarePen size={24} className="edit-icon" />
+              </div>
             </div>
-        </div>
-        
-        <h3 className="training-overview-main-subheading">Getting better every day!</h3>
+            
+            <h3 className="training-overview-main-subheading">Getting better every day!</h3>
+          </div>
+
+          {/* Consistency Section */}
+          <div className="consistency-section">
+            <div className="consistency-grid">
+              <div className="consistency-item">
+                <div className="consistency-value">{consistencyStats.streak}</div>
+                <div className="consistency-label">{consistencyStats.streak === 1 ? 'Day' : 'Days'} Streak</div>
+              </div>
+              <div className="consistency-item">
+                <div className="consistency-value">{consistencyStats.past7Days} / 7</div>
+                <div className="consistency-label">Past 7 days</div>
+              </div>
+              <div className="consistency-item">
+                <div className="consistency-value">{consistencyStats.past30Days} / 30</div>
+                <div className="consistency-label">Past 30 days</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Intensity Section with 7 day boxes */}
+          <div className="intensity-container">
+            <div className="intensity-header-row">
+              <h3 className="training-overview-subheading">Intensity</h3>
+              {intensityData && (
+                <div className="intensity-label-row">
+                  <div 
+                    className="intensity-color-dot" 
+                    style={{ backgroundColor: intensityData.color }}
+                  ></div>
+                  <span className="intensity-label">{intensityData.label}</span>
+                </div>
+              )}
+            </div>
+            <div className="intensity-7day-grid">
+              {last7Days.map((day, index) => (
+                <div 
+                  key={day.date}
+                  className="intensity-day-box"
+                  style={{ 
+                    backgroundColor: day.color || 'rgba(255, 255, 255, 0.15)'
+                  }}
+                ></div>
+              ))}
+            </div>
+            <div className="intensity-footer-row">
+              <div className="intensity-timeline">Last 7 days</div>
+              <div className="intensity-today-arrow"><ChevronUp size={16} strokeWidth={3}/><div className="intensity-timeline">Today</div></div>
+            </div>
+          </div>
+
+          {/* View Button */}
+          <button className="view-button" onClick={() => setIsExpanded(true)}>
+            <ChevronDown size={24} />
+            View Workout
+            <ChevronDown size={24} />
+          </button>
         </div>
 
+        {/* Edit Training Modal */}
+        <EditTrainingModal
+          isOpen={isEditModalOpen}
+          onClose={handleModalClose}
+          log={existingLog}
+          userProfile={userProfile}
+          onSave={handleModalSave}
+        />
+      </>
+    );
+  }
+
+  // Expanded view
+  return (
+    <>
+      <div className="main-container training-overview expanded">
+        <div>
+          <div className="training-log-header">
+            <h1 className="training-log-title">Today's Training</h1>
+            <div className="edit-icon-overlay" onClick={handleEditClick}>
+              <SquarePen size={24} className="edit-icon" />
+            </div>
+          </div>
+          
+          <h3 className="training-overview-main-subheading">Getting better every day!</h3>
+        </div>
         {/* Consistency Section */}
         <div className="consistency-section">
           <div className="consistency-grid">
@@ -409,111 +512,49 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs }
           </div>
         </div>
 
-        {/* View Button */}
-        <button className="view-button" onClick={() => setIsExpanded(true)}>
-          <ChevronDown size={24} />
-          View Workout
-          <ChevronDown size={24} />
+        {/* Today's Workout Section */}
+        <div>
+          <h3 className="training-overview-subheading">Workout</h3>
+          <div className="workout-list">
+            {/* Render training types with their dependents */}
+            {renderFieldWithDependents('types')}
+            
+            {/* Render other fields that are not dependent and not types */}
+            {workoutDetailFields.map(fieldKey => {
+              const config = TRAINING_METRIC_CONFIG[fieldKey as keyof typeof TRAINING_METRIC_CONFIG];
+              
+              // Skip dependent fields - they're rendered by their parent
+              const isDependent = 'dependsOn' in config && config.dependsOn;
+              if (isDependent) return null;
+              
+              return (
+                <div key={fieldKey}>
+                  {renderFieldWithDependents(fieldKey)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Notes Section */}
+        {renderNotes()}
+
+        {/* Hide Button */}
+        <button className="view-button" onClick={() => setIsExpanded(false)}>
+          <ChevronUp size={24} />
+          Hide Workout
+          <ChevronUp size={24} />
         </button>
       </div>
-    );
-  }
 
-  // Expanded view
-  return (
-    <div className="main-container training-overview expanded">
-        <div>
-        <div className="training-log-header">
-            <h1 className="training-log-title">Today's Training</h1>
-            <div className="edit-icon-overlay">
-                <SquarePen size={24} className="edit-icon" />
-            </div>
-        </div>
-        
-        <h3 className="training-overview-main-subheading">Getting better every day!</h3>
-        </div>
-      {/* Consistency Section */}
-      <div className="consistency-section">
-        <div className="consistency-grid">
-          <div className="consistency-item">
-            <div className="consistency-value">{consistencyStats.streak}</div>
-            <div className="consistency-label">{consistencyStats.streak === 1 ? 'Day' : 'Days'} Streak</div>
-          </div>
-          <div className="consistency-item">
-            <div className="consistency-value">{consistencyStats.past7Days} / 7</div>
-            <div className="consistency-label">Past 7 days</div>
-          </div>
-          <div className="consistency-item">
-            <div className="consistency-value">{consistencyStats.past30Days} / 30</div>
-            <div className="consistency-label">Past 30 days</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Intensity Section with 7 day boxes */}
-      <div className="intensity-container">
-        <div className="intensity-header-row">
-          <h3 className="training-overview-subheading">Intensity</h3>
-          {intensityData && (
-            <div className="intensity-label-row">
-              <div 
-                className="intensity-color-dot" 
-                style={{ backgroundColor: intensityData.color }}
-              ></div>
-              <span className="intensity-label">{intensityData.label}</span>
-            </div>
-          )}
-        </div>
-        <div className="intensity-7day-grid">
-          {last7Days.map((day, index) => (
-            <div 
-              key={day.date}
-              className="intensity-day-box"
-              style={{ 
-                backgroundColor: day.color || 'rgba(255, 255, 255, 0.15)'
-              }}
-            ></div>
-          ))}
-        </div>
-        <div className="intensity-footer-row">
-          <div className="intensity-timeline">Last 7 days</div>
-          <div className="intensity-today-arrow"><ChevronUp size={16} strokeWidth={3}/><div className="intensity-timeline">Today</div></div>
-        </div>
-      </div>
-
-      {/* Today's Workout Section */}
-      <div>
-      <h3 className="training-overview-subheading">Today's Workout</h3>
-      <div className="workout-list">
-        {/* Render training types with their dependents */}
-        {renderFieldWithDependents('types')}
-        
-        {/* Render other fields that are not dependent and not types */}
-        {workoutDetailFields.map(fieldKey => {
-          const config = TRAINING_METRIC_CONFIG[fieldKey as keyof typeof TRAINING_METRIC_CONFIG];
-          
-          // Skip dependent fields - they're rendered by their parent
-          const isDependent = 'dependsOn' in config && config.dependsOn;
-          if (isDependent) return null;
-          
-          return (
-            <div key={fieldKey}>
-              {renderFieldWithDependents(fieldKey)}
-            </div>
-          );
-        })}
-      </div>
-      </div>
-
-      {/* Notes Section */}
-      {renderNotes()}
-
-      {/* Hide Button */}
-      <button className="view-button" onClick={() => setIsExpanded(false)}>
-        <ChevronUp size={24} />
-        Hide Workout
-        <ChevronUp size={24} />
-      </button>
-    </div>
+      {/* Edit Training Modal */}
+      <EditTrainingModal
+        isOpen={isEditModalOpen}
+        onClose={handleModalClose}
+        log={existingLog}
+        userProfile={userProfile}
+        onSave={handleModalSave}
+      />
+    </>
   );
 }
