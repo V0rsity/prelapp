@@ -4,8 +4,8 @@
   "description": "Track your readiness to make data-backed training decisions.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#282828",
+  "background_color": "#BDDDFC",
+  "theme_color": "#BDDDFC",
   "orientation": "portrait",
   "icons": [
     {
