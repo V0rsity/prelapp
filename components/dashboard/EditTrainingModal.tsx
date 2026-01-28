@@ -387,7 +387,7 @@ export default function EditTrainingModal({ isOpen, onClose, log, userProfile, o
 
         <div className="main-container">
           <div className="main-heading">
-            <h1>Edit Training Log</h1>
+            <h1>Edit Training</h1>
             <h3>Update your training session.</h3>
           </div>
 

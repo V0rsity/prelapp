@@ -149,7 +149,7 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
 
         <div className="main-container">
           <div className="main-heading">
-            <h1>Edit Log</h1>
+            <h1>Edit Readiness</h1>
             <h3>Update your morning readiness log.</h3>
           </div>
 

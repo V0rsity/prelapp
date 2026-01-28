@@ -980,7 +980,6 @@ html, body {
 
 .modal-content .main-heading {
   padding: 0;
-  position: sticky; /* Optional: keeps header visible while scrolling */
   top: 0;
   background: #5d7994;
   z-index: 1;
