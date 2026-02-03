@@ -1,7 +1,6 @@
 // config/metrics.ts
 
 // Note: the key is the part that comes before '_morning' in supabase ex: 'calf_morning'. When adding, must also add to supabase.
-
 // General readiness metrics available to all athletes. Remember to add the icon in MorningReadiness and EditLogModal
 export const READINESS_METRIC_CONFIG = {
   sleep: {
@@ -158,6 +157,79 @@ export const TRAINING_METRIC_CONFIG = {
   }
 } as const;
 
+// Stored in Supabase as recovery_activities and recovery_notes!
+export const RECOVERY_METRIC_CONFIG = {
+  activities: {
+    inputType: "multiselect" as const,
+    defaultValue: [] as string[],
+    options: {
+      cooldown: {
+        label: "Cool Down",
+        description: "Jogging, stretching, mobility, etc",
+        category: "post_training",
+        requiresTraining: true,
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+      },
+      stretching: {
+        label: "Stretching",
+        description: "Stretches, rolling out, etc.",
+        category: "both", // Only one that is both!
+        requiresTraining: false,
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+      },
+      carbs_protein: {
+        label: "Immediate Carbs / Protein",
+        description: "Ideally 30 mins. after training",
+        category: "post_training",
+        requiresTraining: true,
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+      },
+      hydration: {
+        label: "Hydration",
+        description: "Replenish electrolytes immediately",
+        category: "post_training",
+        requiresTraining: true,
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+      },
+      hip_mobility: {
+        label: "Hip Mobility",
+        category: "additional",
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+        fillColor: "#000000",
+        textColor: "#FFFFFF",
+      },
+      ice_bath: {
+        label: "Ice Bath",
+        category: "additional",
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+        fillColor: "#0000FF",
+        textColor: "#FFFFFF",
+      },
+    },
+  },
+  notes: {
+    label: "Recovery Notes",
+    inputType: "textarea" as const,
+    defaultValue: "",
+    textareaConfig: {
+      rows: 3,
+      placeholder: "Add notes about your recovery routine...",
+    }
+  }
+} as const;
+
+// Activity option type derived from RECOVERY_METRIC_CONFIG
+export type RecoveryActivityOption = {
+  key: string;
+  label: string;
+  category: string;
+  eventTypes: readonly string[];
+  requiresTraining?: boolean;
+  description?: string;
+  fillColor?: string;
+  textColor?: string;
+};
+
 // Helper functions for soreness metrics
 export const getSorenessMetrics = () => {
   return Object.entries(SORENESS_METRIC_CONFIG).map(([key, config]) => ({
@@ -224,3 +296,4 @@ export const shouldShowField = (
 export type ReadinessMetricKey = keyof typeof READINESS_METRIC_CONFIG;
 export type SorenessMetricKey = keyof typeof SORENESS_METRIC_CONFIG;
 export type TrainingMetricKey = keyof typeof TRAINING_METRIC_CONFIG;
+export type RecoveryMetricKey = keyof typeof RECOVERY_METRIC_CONFIG;

@@ -4,6 +4,7 @@ import MorningReadiness from "./MorningReadiness";
 import MorningOverview from "./MorningOverview";
 import TrainingLog from "./TrainingLog";
 import TrainingOverview from "./TrainingOverview";
+import RecoveryLog from "./RecoveryLog";
 
 interface Props {
   dailyLogs: any[];
@@ -124,6 +125,13 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData, set
           setIsAnyModalOpen={setIsAnyModalOpen}
         />
       )}
+
+      <RecoveryLog
+        currentDate={currentDate}
+        userProfile={userProfile}
+        existingLog={todaysLog}
+        onComplete={() => refreshUserData && refreshUserData()}
+      />
 
       {!hasCheckedToday && <div className="loading"></div>}
     </div>
