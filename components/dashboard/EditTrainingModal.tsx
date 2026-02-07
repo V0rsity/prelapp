@@ -165,8 +165,16 @@ export default function EditTrainingModal({ isOpen, onClose, log, userProfile, o
 
       if (error) throw error;
 
-      // Clear sessionStorage to force refresh from Supabase
-      sessionStorage.removeItem('dailyLogs');
+      // Update sessionStorage
+      const cachedLogs = sessionStorage.getItem('dailyLogs');
+      const dailyLogs = cachedLogs ? JSON.parse(cachedLogs) : [];
+      
+      const index = dailyLogs.findIndex((l: any) => l.id === log.id);
+      if (index !== -1) {
+        dailyLogs[index] = data;
+      }
+      
+      sessionStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
 
       // Call onSave callback to trigger refresh
       onSave();

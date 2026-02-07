@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Moon, BatteryMedium, GlassWater, Beef, Zap, Activity, NotebookPen } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { calculateReadinessScore } from "../../utils/readinessScore";
@@ -55,6 +55,44 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
   const updateSorenessValue = (key: SorenessMetricKey, value: number) => {
     setSorenessValues(prev => ({ ...prev, [key]: value }));
   };
+
+  // Reset form state whenever modal opens or log changes
+  useEffect(() => {
+    if (isOpen && log) {
+      const readinessInitial: Record<string, number> = {};
+      Object.keys(READINESS_METRIC_CONFIG).forEach(key => {
+        readinessInitial[key] = log[`${key}_morning`] || 3;
+      });
+      setReadinessValues(readinessInitial as Record<ReadinessMetricKey, number>);
+
+      const sorenessInitial: Record<string, number> = {};
+      Object.keys(SORENESS_METRIC_CONFIG).forEach(key => {
+        sorenessInitial[key] = log[`${key}_morning`] || 3;
+      });
+      setSorenessValues(sorenessInitial as Record<SorenessMetricKey, number>);
+
+      setNotes(log.notes_morning || "");
+      setCurrentPage(1); // Reset to first page
+    }
+  }, [isOpen, log]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
 
   // Determine which soreness metrics to show - only those that exist in the log
   const visibleSorenessMetrics = useMemo(() => {
@@ -122,8 +160,16 @@ export default function EditLogModal({ isOpen, onClose, log, onSave, userProfile
 
       if (error) throw error;
 
-      // Clear sessionStorage to force refresh from Supabase
-      sessionStorage.removeItem('dailyLogs');
+      // Update sessionStorage
+      const cachedLogs = sessionStorage.getItem('dailyLogs');
+      const dailyLogs = cachedLogs ? JSON.parse(cachedLogs) : [];
+      
+      const index = dailyLogs.findIndex((l: any) => l.id === log.id);
+      if (index !== -1) {
+        dailyLogs[index] = data;
+      }
+      
+      sessionStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
 
       // Call onSave callback to trigger refresh
       onSave();
