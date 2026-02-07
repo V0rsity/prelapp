@@ -1692,6 +1692,62 @@ html, body {
   line-height: 1.4;
 }
 
+
+/* ─── RecoveryOverview ─────────────────────────────────────────── */
+
+.recovery-overview.main-container {
+  padding: 1.5rem;
+  color: white;
+  gap: 1.12rem;
+}
+
+.recovery-overview .training-log-title {
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* read-only checklist rows */
+.recovery-checklist-display {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.recovery-checklist-display-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recovery-checklist-display-label {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+/* pill row for additional recovery activities (no X button) */
+.recovery-overview-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* override: strip the X-related padding/gap that .training-type-pill.active may add */
+.recovery-overview-pill {
+  cursor: default;
+  /* remove any right-side gap that the X icon normally occupies */
+  padding-right: 12px !important;
+}
+
+.recovery-checklist-display-item input.checklist-checkbox {
+  cursor: default;
+  pointer-events: none;
+}
+
+
+
 /* Desktop View (Min-width 1024px) */
 @media (min-width: 1024px) {
   .main-content {

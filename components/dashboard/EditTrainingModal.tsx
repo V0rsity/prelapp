@@ -33,6 +33,23 @@ export default function EditTrainingModal({ isOpen, onClose, log, userProfile, o
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  // Reset form state whenever modal opens or log changes
+  useEffect(() => {
+    if (isOpen && log) {
+      const initialState: Record<string, any> = {};
+      Object.entries(TRAINING_METRIC_CONFIG).forEach(([key, config]) => {
+        const dbField = `training_${key}`;
+        const existingValue = log[dbField];
+        initialState[key] = existingValue !== undefined && existingValue !== null 
+          ? existingValue 
+          : config.defaultValue;
+      });
+      setFormState(initialState);
+      setCurrentPage(1); // Reset to first page
+      setOpenDropdowns({}); // Close any open dropdowns
+    }
+  }, [isOpen, log]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

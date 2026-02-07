@@ -5,6 +5,7 @@ import MorningOverview from "./MorningOverview";
 import TrainingLog from "./TrainingLog";
 import TrainingOverview from "./TrainingOverview";
 import RecoveryLog from "./RecoveryLog";
+import RecoveryOverview from "./RecoveryOverview";
 
 interface Props {
   dailyLogs: any[];
@@ -80,8 +81,9 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData, set
     }
   };
 
-  // Determine if training is complete
+  // Determine if training / recovery are complete
   const isTrainingComplete = todaysLog?.training_complete === true;
+  const isRecoveryComplete = todaysLog?.recovery_complete === true;
 
   return (
     <div className="readiness-wrapper">
@@ -108,7 +110,7 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData, set
         />
       )}
 
-      {/* Conditionally render TrainingLog or TrainingOverview */}
+      {/* Training: Log → Overview once complete */}
       {!isTrainingComplete ? (
         <TrainingLog
           currentDate={currentDate}
@@ -126,12 +128,22 @@ export default function Readiness({ dailyLogs, userProfile, refreshUserData, set
         />
       )}
 
-      <RecoveryLog
-        currentDate={currentDate}
-        userProfile={userProfile}
-        existingLog={todaysLog}
-        onComplete={() => refreshUserData && refreshUserData()}
-      />
+      {/* Recovery: Log → Overview once complete */}
+      {!isRecoveryComplete ? (
+        <RecoveryLog
+          currentDate={currentDate}
+          userProfile={userProfile}
+          existingLog={todaysLog}
+          onComplete={() => refreshUserData && refreshUserData()}
+        />
+      ) : (
+        <RecoveryOverview
+          existingLog={todaysLog}
+          userProfile={userProfile}
+          setIsAnyModalOpen={setIsAnyModalOpen}
+          onUpdate={refreshUserData}
+        />
+      )}
 
       {!hasCheckedToday && <div className="loading"></div>}
     </div>
