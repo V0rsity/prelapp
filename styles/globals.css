@@ -19,25 +19,6 @@ html, body {
   overflow-y: auto;
 }
 
-/* Mobile View (Default) */
-#mobile {
-  display: block; 
-}
-
-#desktop {
-  display: none;
-}
-
-/* Desktop View (Min-width 1024px) */
-@media (min-width: 1024px) {
-  #desktop {
-    display: block; 
-  }
-  #mobile {
-    display: none;
-  }
-}
-
 
 /* Dashboard Wrapper */
 .dashboard-wrapper {
@@ -1762,5 +1743,139 @@ html, body {
   }
   .modal-content {
     width: 25%;
+  }
+}
+
+/* Desktop Navigation Buttons - Hidden on Mobile */
+.desktop-nav-button {
+  display: none;
+}
+
+/* Desktop View (Min-width 1024px) */
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none; /* Hide the bottom nav on desktop */
+  }
+
+  .desktop-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    padding: 2rem 0;
+    position: relative;
+    width: 100vw; /* Full viewport width */
+  }
+
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    width: 25%;
+    position: relative;
+  }
+
+  /* Desktop Navigation Button Container */
+  .desktop-nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed; /* Fixed positioning relative to viewport */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust for button height */
+    z-index: 50;
+  }
+
+  /* Left button */
+  .desktop-nav-button.left {
+    left: calc((100vw - 25%) / 4 - 60px); /* Center in left space */
+  }
+
+  /* Right button */
+  .desktop-nav-button.right {
+    right: calc((100vw - 25%) / 4 - 60px); /* Center in right space */
+  }
+
+  .desktop-nav-button button {
+    background: rgba(56, 73, 89, 0.4); /* Slightly more opaque */
+    color: white; /* Crisp white text */
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+    min-width: 120px;
+    backdrop-filter: blur(10px); /* Adds blur effect */
+  }
+
+  .desktop-nav-button button:hover {
+    background: #384959; /* Solid background on hover */
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .desktop-nav-button button svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .desktop-nav-button button span {
+    font-size: 0.875rem;
+  }
+
+  /* Arrow indicators */
+  .desktop-nav-button.left button::before {
+    content: "‹";
+    position: absolute;
+    left: 0.5rem;
+    font-size: 2rem;
+    font-weight: 300;
+    opacity: 0.8; /* More visible */
+    transition: opacity 0.3s ease;
+  }
+
+  .desktop-nav-button.right button::before {
+    content: "›";
+    position: absolute;
+    right: 0.5rem;
+    font-size: 2rem;
+    font-weight: 300;
+    opacity: 0.8; /* More visible */
+    transition: opacity 0.3s ease;
+  }
+
+  .desktop-nav-button button:hover::before {
+    opacity: 1;
+  }
+
+  .modal-content {
+    width: 25%;
+  }
+}
+
+/* Mobile View (Default) */
+#mobile {
+  display: block; 
+}
+
+#desktop {
+  display: none;
+}
+
+/* Desktop View (Min-width 1024px) */
+@media (min-width: 1024px) {
+  #desktop {
+    display: block; 
+  }
+  #mobile {
+    display: none;
   }
 }

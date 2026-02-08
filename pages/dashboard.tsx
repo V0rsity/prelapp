@@ -143,28 +143,28 @@ export default function Dashboard() {
 
   // Render the appropriate component based on active tab
   const renderContent = () => {
-  if (dataLoading) {
-    return <div className="loading-content"></div>;
-  }
+    if (dataLoading) {
+      return <div className="loading-content"></div>;
+    }
 
-  const props = { dailyLogs, userProfile, refreshUserData, setIsAnyModalOpen } as any;
-  // It is important that this always returns all the tabs so the state is saved between them!
-  return (
-    <>
-      <div style={{ display: activeTab === "history" ? "block" : "none" }}>
-        <History {...props} />
-      </div>
+    const props = { dailyLogs, userProfile, refreshUserData, setIsAnyModalOpen } as any;
+    // It is important that this always returns all the tabs so the state is saved between them!
+    return (
+      <>
+        <div style={{ display: activeTab === "history" ? "block" : "none" }}>
+          <History {...props} />
+        </div>
 
-      <div style={{ display: activeTab === "readiness" ? "block" : "none" }}>
-        <Readiness {...props} />
-      </div>
+        <div style={{ display: activeTab === "readiness" ? "block" : "none" }}>
+          <Readiness {...props} />
+        </div>
 
-      <div style={{ display: activeTab === "trends" ? "block" : "none" }}>
-        <Trends {...props} />
-      </div>
-    </>
-  );
-};
+        <div style={{ display: activeTab === "trends" ? "block" : "none" }}>
+          <Trends {...props} />
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className={`dashboard-wrapper ${showProfileModal || isAnyModalOpen ? 'modal-active' : ''}`}>
@@ -176,8 +176,7 @@ export default function Dashboard() {
       )}
       {/* Top Bar */}
       <div id="topbar">
-        <img src="/images/Logo-Mobile.png" alt="Logo" id="mobile" />
-        <img src="/images/Logo-Desktop.png" alt="Logo" id="desktop" />
+        <img src="/images/Logo-Mobile.png" alt="Logo"/>
         <div className="menu-container">
           <button onClick={refreshUserData}>
             <RefreshCw size={34} />
@@ -196,37 +195,74 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+      
       <div className="desktop-wrapper">
+        {/* Left Navigation Button */}
+        {activeTab === "trends" && (
+          <div className="desktop-nav-button left">
+            <button onClick={() => handleTabSwitch("readiness")}>
+              <Zap size={24} />
+              <span>Today's Log</span>
+            </button>
+          </div>
+        )}
+        {activeTab === "readiness" && (
+          <div className="desktop-nav-button left">
+            <button onClick={() => handleTabSwitch("history")}>
+              <Clock size={24} />
+              <span>History</span>
+            </button>
+          </div>
+        )}
+
         {/* Main Content */}
         <div className="main-content">
           {renderContent()}
         </div>
 
-        {/* Bottom Navigation */}
-        <nav className="bottom-nav">
-          <button 
-            onClick={() => handleTabSwitch("history")}
-            className={activeTab === "history" ? "active" : ""}
-          >
-            <Clock size={20} />
-            <span>History</span>
-          </button>
-          <button 
-            onClick={() => handleTabSwitch("readiness")}
-            className={activeTab === "readiness" ? "active" : ""}
-          >
-            <Zap size={20} />
-            <span>Today's Log</span>
-          </button>
-          <button 
-            onClick={() => handleTabSwitch("trends")}
-            className={activeTab === "trends" ? "active" : ""}
-          >
-            <TrendingUp size={20} />
-            <span>Trends</span>
-          </button>
-        </nav>
+        {/* Right Navigation Button */}
+        {activeTab === "history" && (
+          <div className="desktop-nav-button right">
+            <button onClick={() => handleTabSwitch("readiness")}>
+              <Zap size={24} />
+              <span>Today's Log</span>
+            </button>
+          </div>
+        )}
+        {activeTab === "readiness" && (
+          <div className="desktop-nav-button right">
+            <button onClick={() => handleTabSwitch("trends")}>
+              <TrendingUp size={24} />
+              <span>Trends</span>
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <nav className="bottom-nav">
+        <button 
+          onClick={() => handleTabSwitch("history")}
+          className={activeTab === "history" ? "active" : ""}
+        >
+          <Clock size={20} />
+          <span>History</span>
+        </button>
+        <button 
+          onClick={() => handleTabSwitch("readiness")}
+          className={activeTab === "readiness" ? "active" : ""}
+        >
+          <Zap size={20} />
+          <span>Today's Log</span>
+        </button>
+        <button 
+          onClick={() => handleTabSwitch("trends")}
+          className={activeTab === "trends" ? "active" : ""}
+        >
+          <TrendingUp size={20} />
+          <span>Trends</span>
+        </button>
+      </nav>
     </div>
   );
 }
