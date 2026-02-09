@@ -1762,7 +1762,6 @@ html, body {
     justify-content: center;
     align-items: flex-start;
     gap: 0;
-    padding: 2rem 0;
     position: relative;
     width: 100vw; /* Full viewport width */
   }
