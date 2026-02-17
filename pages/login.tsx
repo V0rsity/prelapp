@@ -1,8 +1,10 @@
 // pages/login.tsx
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import { MoreVertical } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -10,6 +12,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) router.push("/dashboard");
@@ -17,7 +21,13 @@ export default function Login() {
 
   const handleLogin = async () => {
     setError("");
-    
+
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -30,26 +40,85 @@ export default function Login() {
     } catch (err: any) {
       setError(err.message || "Login failed.");
       console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleLogin();
     }
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      
-      <input 
-        placeholder="Email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
-      />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+    <div className="dashboard-wrapper auth-page">
+      <div id="topbar">
+        <Link href="/">
+          <img src="/images/Logo-Mobile.png" alt="Logo" />
+        </Link>
+        <button>
+          <MoreVertical size={36} />
+        </button>
+      </div>
+
+      <div className="main-content">
+        <div className="main-container">
+          <div className="main-heading">
+            <h1>Login to Prelapp</h1>
+            <h3>Keep tracking your progress!</h3>
+          </div>
+
+          <div className="auth-form">
+            {error && (
+              <div className="profile-error">{error}</div>
+            )}
+
+            <div className="auth-field">
+              <label className="auth-label">Email</label>
+              <input
+                className="auth-input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    passwordRef.current?.focus();
+                  }
+                }}
+              />
+            </div>
+
+            <div className="auth-field-spaced">
+              <label className="auth-label">Password</label>
+              <input
+                className="auth-input"
+                ref={passwordRef}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            <div className="auth-submit-row">
+              <button
+                onClick={handleLogin}
+                disabled={loading}
+                className="profile-submit-btn"
+              >
+                {loading ? "Logging in..." : "Login!"}
+              </button>
+            </div>
+
+            <p className="auth-footer">
+              Don&apos;t have an account? Create one{" "}
+              <Link href="/signup">here</Link>!
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

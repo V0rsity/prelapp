@@ -1804,7 +1804,73 @@ html, body {
   pointer-events: none;
 }
 
+/* ===================================
+   AUTH FORM (Login / Signup)
+   =================================== */
 
+.auth-page .main-content {
+  margin: 0 auto;
+}
+
+.auth-form {
+  padding: 0 1.25rem 1.25rem;
+}
+
+.auth-field {
+  margin-bottom: 0.75rem;
+}
+
+.auth-field-spaced {
+  margin-bottom: 1.25rem;
+}
+
+.auth-label {
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #384959;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  outline: 2px solid #384959;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 1);
+}
+
+.auth-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.auth-submit-row .profile-submit-btn {
+  width: 60%;
+}
+
+.auth-footer {
+  color: white;
+  text-align: center;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.auth-footer a {
+  color: #efbf04;
+  font-weight: 600;
+}
 
 /* Desktop View (Min-width 1024px) */
 @media (min-width: 1024px) {
