@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { READINESS_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
+import { useState, useMemo } from "react";
+import { READINESS_METRIC_CONFIG, TRAINING_METRIC_CONFIG, RECOVERY_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
+import ViewLogModal from "./ViewLogModal";
 
 interface Props {
   dailyLogs: any[];
@@ -24,12 +25,20 @@ function getReadinessLevel(readiness: number): string {
 
 function formatDate(dateString: string): string {
   const [year, month, day] = dateString.split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+  return `${dayNames[date.getDay()]}, ${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
+}
+
+function formatDateShort(dateString: string): string {
+  const [year, month, day] = dateString.split('-');
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October', 'November', 'December'];
   return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
 }
 
-// Get available readiness metrics - dynamically from config
 function getAvailableReadinessMetrics() {
   return Object.entries(READINESS_METRIC_CONFIG).map(([key, config]) => ({
     key,
@@ -37,18 +46,45 @@ function getAvailableReadinessMetrics() {
   }));
 }
 
-// Get available soreness metrics for a specific log - dynamically from config
 function getAvailableSorenessMetrics(log: any) {
   const sorenessMetrics = getSorenessMetricsShortView();
-  
   return sorenessMetrics.filter(({ key }) => {
     const value = log[`${key}_morning`];
     return value !== null && value !== undefined;
   });
 }
 
+function getIntensityInfo(intensityValue: number) {
+  const option = TRAINING_METRIC_CONFIG.intensity.options[intensityValue as keyof typeof TRAINING_METRIC_CONFIG.intensity.options];
+  if (!option) return { label: "Unknown", color: "#888" };
+  return { label: option.label, color: option.color };
+}
+
+function getTrainingTypesDisplay(types: string[]) {
+  if (!types || types.length === 0) return "";
+  const labels = types.map(t => {
+    const option = TRAINING_METRIC_CONFIG.types.options[t as keyof typeof TRAINING_METRIC_CONFIG.types.options];
+    return option ? option.label : t;
+  });
+  const display = labels.join(", ");
+  return display.length > 25 ? display.substring(0, 25).trimEnd() + "..." : display;
+}
+
+function getRecoveryActivitiesDisplay(activities: string[]) {
+  if (!activities || activities.length === 0) return { display: "", count: 0 };
+  const labels = activities.map(a => {
+    const option = RECOVERY_METRIC_CONFIG.activities.options[a as keyof typeof RECOVERY_METRIC_CONFIG.activities.options];
+    return option ? option.label : a;
+  });
+  const display = labels.join(", ");
+  // Truncate if too long
+  const truncated = display.length > 23 ? display.substring(0, 23).trimEnd() + "..." : display;
+  return { display: truncated, count: activities.length };
+}
+
 export default function History({ dailyLogs, userProfile }: Props) {
   const readinessMetrics = getAvailableReadinessMetrics();
+  const [selectedLog, setSelectedLog] = useState<any>(null);
 
   return (
     <div className="history-section">
@@ -61,52 +97,56 @@ export default function History({ dailyLogs, userProfile }: Props) {
         <p>No logs yet.</p>
       ) : (
         dailyLogs.map((log) => {
+          const intensityInfo = log.training_complete ? getIntensityInfo(log.training_intensity) : null;
+          const trainingTypes = log.training_complete ? getTrainingTypesDisplay(log.training_types) : "";
+          const recoveryInfo = log.recovery_complete ? getRecoveryActivitiesDisplay(log.recovery_activities) : null;
+
           return (
-            <div key={log.id} className="main-container history-log">
+            <div key={log.id} className="main-container history-log history-log-meta">
               <div className="main-heading">
                 <h1>{formatDate(log.date)}</h1>
               </div>
-              
+
               {log.morning_complete && (
-                <div className="readiness-history">
+                <button
+                  className="history-card"
+                  onClick={() => setSelectedLog(log)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="history-card-left">
+                    <span className="history-card-title">Readiness</span>
+                    <span className="history-card-subtitle">Readiness Score</span>
+                  </div>
                   <div className="readiness-badge" data-readiness={getReadinessLevel(log.readiness_score)}>
-                    <span className="readiness-label">Morning Readiness</span>
                     <span className="readiness-score">{log.readiness_score}</span>
                   </div>
-                  
-                  <div className="log-card">
-                    <div className="grid-container">
-                      <div className="metrics-grid" style={{ "--rows": Math.ceil((readinessMetrics.length + getAvailableSorenessMetrics(log).length) / 2) } as React.CSSProperties}>
-                        {/* Readiness metrics - dynamically from config */}
-                        {readinessMetrics.map(({ key, label }) => (
-                          <div key={key} className="metric-item">
-                            <span
-                              className="metric-dot"
-                              style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
-                            ></span>
-                            <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
-                          </div>
-                        ))}
+                </button>
+              )}
 
-                        {/* Soreness metrics (conditionally shown) - dynamically from config */}
-                        {getAvailableSorenessMetrics(log).map(({ key, label }) => (
-                          <div key={key} className="metric-item">
-                            <span
-                              className="metric-dot"
-                              style={{ backgroundColor: `var(--color-${getColorForScore(log[`${key}_morning`])})` }}
-                            ></span>
-                            <span className="metric-label">{label} {log[`${key}_morning`]}/5</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+              {log.training_complete && intensityInfo && (
+                <button className="history-card" style={{ cursor: "default" }}>
+                  <div className="history-card-left">
+                    <span className="history-card-title">Training</span>
+                    <span className="history-card-subtitle">{trainingTypes}</span>
                   </div>
-                  {log.notes_morning && (
-                    <div className="log-notes">
-                      <span className="notes-label">Notes:</span> {log.notes_morning}
-                    </div>
-                  )}
-                </div>
+                  <div className="history-card-right">
+                    <span className="history-intensity-dot" style={{ backgroundColor: intensityInfo.color }}></span>
+                    <span className="history-card-meta">{intensityInfo.label}</span>
+                  </div>
+                </button>
+              )}
+
+              {log.recovery_complete && recoveryInfo && (
+                <button className="history-card" style={{ cursor: "default" }}>
+                  <div className="history-card-left">
+                    <span className="history-card-title">Recovery</span>
+                    <span className="history-card-subtitle">{recoveryInfo.display}</span>
+                  </div>
+                  <div className="history-card-right">
+                    <span className="history-card-count">{recoveryInfo.count}</span>
+                    <span className="history-card-meta">Activities</span>
+                  </div>
+                </button>
               )}
             </div>
           );
@@ -115,6 +155,17 @@ export default function History({ dailyLogs, userProfile }: Props) {
       {dailyLogs.length >= 30 && (
         <p>30 day cap reached.</p>
       )}
+
+      <ViewLogModal
+        isOpen={!!selectedLog}
+        onClose={() => setSelectedLog(null)}
+        log={selectedLog}
+        formatDate={formatDateShort}
+        getReadinessLevel={getReadinessLevel}
+        getColorForScore={getColorForScore}
+        availableReadinessMetrics={readinessMetrics}
+        availableSorenessMetrics={selectedLog ? getAvailableSorenessMetrics(selectedLog) : []}
+      />
     </div>
   );
 }

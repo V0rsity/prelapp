@@ -427,6 +427,14 @@ html, body {
   margin-bottom: 1.25rem;
 }
 
+.history-log-meta.history-log.main-container {
+  padding: 1.5rem;
+}
+.history-log-meta.history-log .main-heading{
+  padding: 0;
+  padding-bottom: 1rem;
+}
+
 .history-log h1 {
   font-size: 1.6rem;
   margin-bottom: 0;
@@ -528,6 +536,75 @@ html, body {
 .notes-label {
   font-weight: 600;
   font-size: 1.2rem;
+}
+
+/* History Card Buttons */
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(56, 73, 89, 0.5);
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.5rem;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
+}
+
+.history-card .readiness-badge {
+  margin-bottom: 0;
+  gap: 0;
+}
+
+.history-card .readiness-score {
+  font-size: 1rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-width: 0.22rem;
+}
+
+.history-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.history-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.history-card-subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.history-card-right,
+.history-card .readiness-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 4.5rem;
+}
+
+.history-intensity-dot {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+}
+
+.history-card-count {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.history-card-meta {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .date-container {
