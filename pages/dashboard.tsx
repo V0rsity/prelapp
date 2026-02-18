@@ -201,7 +201,7 @@ export default function Dashboard() {
           {showMenu && (
             <div className="popup-menu">
               <button onClick={handleLogout}><p>Logout</p></button>
-              <button><p>Settings</p></button>
+              <button onClick={() => router.push('/settings')}><p>Settings</p></button>
               <button><p>Help & FAQ</p></button>
               <button><p>Contact Us</p></button>
             </div>
