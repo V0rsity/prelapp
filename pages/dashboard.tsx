@@ -1,5 +1,5 @@
 // pages/dashboard.tsx
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const { user, loading } = useContext(AuthContext);
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("readiness");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
@@ -126,6 +127,18 @@ export default function Dashboard() {
     }
   }
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showMenu]);
+
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
@@ -177,7 +190,7 @@ export default function Dashboard() {
       {/* Top Bar */}
       <div id="topbar">
         <img src="/images/Logo-Mobile.png" alt="Logo"/>
-        <div className="menu-container">
+        <div className="menu-container" ref={menuRef}>
           <button onClick={refreshUserData}>
             <RefreshCw size={34} />
           </button>

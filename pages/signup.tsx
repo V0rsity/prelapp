@@ -320,7 +320,7 @@ export default function Signup() {
               </label>
               <p className="auth-terms-read">
                 Read the Terms and Conditions{" "}
-                <span className="auth-terms-link">here</span>
+                <Link href="/terms" className="auth-terms-link" target="_blank" rel="noopener noreferrer">here</Link>
               </p>
             </div>
 

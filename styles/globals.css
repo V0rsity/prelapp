@@ -1966,6 +1966,85 @@ html, body {
   cursor: pointer;
 }
 
+/* Terms Page */
+.terms-container {
+  color: white;
+  padding: 1.5rem;
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.terms-container h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.terms-container h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding-bottom: 0.25rem;
+}
+
+.terms-container p {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.88);
+}
+
+.terms-container ul, .terms-container ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.terms-container li {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 0.25rem;
+}
+
+.terms-container strong {
+  color: white;
+}
+
+.terms-container blockquote {
+  border-left: 3px solid #efbf04;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background: rgba(0,0,0,0.15);
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.terms-container blockquote p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.terms-container hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin: 1.25rem 0;
+}
+
+.terms-back {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.terms-back button {
+  color: #efbf04;
+  font-weight: 600;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 /* Desktop View (Min-width 1024px) */
 @media (min-width: 1024px) {
   .main-content {
