@@ -288,6 +288,152 @@ function EditProfilesModal({ userProfile, onClose, onSave }: {
   );
 }
 
+// ─── Delete Account Modal ──────────────────────────────────────────────────────
+
+const DELETE_WORD = 'DELETE';
+
+function DeleteAccountModal({ userId, onClose }: {
+  userId: string;
+  onClose: () => void;
+}) {
+  useBodyLock();
+  const router = useRouter();
+  const [chars, setChars] = useState<string[]>(Array(DELETE_WORD.length).fill(''));
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const isComplete = chars.join('') === DELETE_WORD;
+
+  const handleChange = (index: number, value: string) => {
+    const char = value.slice(-1).toUpperCase().replace(/[^A-Z]/g, '');
+    const newChars = [...chars];
+    newChars[index] = char;
+    setChars(newChars);
+    if (char && index < DELETE_WORD.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (chars[index]) {
+        const newChars = [...chars];
+        newChars[index] = '';
+        setChars(newChars);
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await supabase.from('daily_logs').delete().eq('user_id', userId);
+      await supabase.from('users').delete().eq('id', userId);
+      sessionStorage.removeItem('userProfile');
+      sessionStorage.removeItem('dailyLogs');
+      await supabase.auth.signOut();
+      router.push('/');
+    } catch {
+      setError('Failed to delete account. Please try again.');
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content edit-modal-content settings-modal" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+          <CloseIcon />
+        </button>
+        <div className="main-container">
+          <div className="main-heading">
+            <h1>Delete Account</h1>
+            <h3>This is permanent and cannot be undone. Type DELETE to confirm.</h3>
+          </div>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            padding: '0.875rem 1rem',
+            marginBottom: '0.25rem',
+          }}>
+            <p style={{ color: '#fca5a5', fontSize: '0.78rem', fontWeight: '600', marginBottom: '0.375rem', letterSpacing: '0.02em' }}>
+              The following will be permanently deleted:
+            </p>
+            <ul style={{ color: 'rgba(252, 165, 165, 0.85)', fontSize: '0.78rem', paddingLeft: '1.1rem', margin: 0, lineHeight: '1.7' }}>
+              <li>Your account and profile information</li>
+              <li>All daily readiness logs</li>
+              <li>All training and recovery records</li>
+            </ul>
+          </div>
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '1.25rem 0 0.625rem' }}>
+            Type 'DELETE' to confirm
+          </p>
+          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', marginBottom: '0.5rem' }}>
+            {Array.from(DELETE_WORD).map((letter, i) => (
+              <input
+                key={i}
+                ref={el => { inputRefs.current[i] = el; }}
+                type="text"
+                maxLength={2}
+                value={chars[i]}
+                onChange={e => handleChange(i, e.target.value)}
+                onKeyDown={e => handleKeyDown(i, e)}
+                style={{
+                  width: '2.5rem',
+                  height: '2.75rem',
+                  textAlign: 'center',
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  border: '2px solid',
+                  borderColor: chars[i]
+                    ? chars[i] === letter ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '0.5rem',
+                  outline: 'none',
+                  background: chars[i]
+                    ? chars[i] === letter ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)'
+                    : 'rgba(0, 0, 0, 0.2)',
+                  color: 'white',
+                  transition: 'border-color 0.15s, background 0.15s',
+                }}
+              />
+            ))}
+          </div>
+          {error && <div className="profile-error" style={{ marginTop: '0.75rem' }}>{error}</div>}
+          {isComplete && (
+            <div className="button-group">
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                style={{
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  width: '100%',
+                  opacity: isDeleting ? 0.7 : 1,
+                }}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Settings Page ─────────────────────────────────────────────────────────────
 
 export default function Settings() {
@@ -298,6 +444,7 @@ export default function Settings() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [showTimezoneModal, setShowTimezoneModal] = useState(false);
   const [showProfilesModal, setShowProfilesModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -358,7 +505,7 @@ export default function Settings() {
     sessionStorage.setItem('userProfile', JSON.stringify(updated));
   };
 
-  const anyModalOpen = showNameModal || showTimezoneModal || showProfilesModal;
+  const anyModalOpen = showNameModal || showTimezoneModal || showProfilesModal || showDeleteModal;
 
   return (
     <div className={`settings dashboard-wrapper auth-page${anyModalOpen ? ' modal-active' : ''}`}>
@@ -445,6 +592,21 @@ export default function Settings() {
                   View
                 </Link>
               </div>
+
+              {/* Delete Account */}
+              <div className="settings-row">
+                <div className="settings-row-info">
+                  <span className="settings-row-label">Account Status</span>
+                  <span className="settings-row-value">&#10003; Active</span>
+                </div>
+                <button
+                  className="settings-edit-btn"
+                  onClick={() => setShowDeleteModal(true)}
+                  style={{ background: '#ef4444', color: '#ffffff' }}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.5rem' }}>
@@ -487,6 +649,12 @@ export default function Settings() {
           userProfile={userProfile}
           onClose={() => setShowProfilesModal(false)}
           onSave={updates => { handleProfileUpdate(updates); setShowProfilesModal(false); }}
+        />
+      )}
+      {showDeleteModal && user && (
+        <DeleteAccountModal
+          userId={user.id}
+          onClose={() => setShowDeleteModal(false)}
         />
       )}
     </div>
