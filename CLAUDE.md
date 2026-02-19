@@ -30,6 +30,8 @@ components/
   dashboard/     # All dashboard components (logs, overviews, modals, trends)
 config/
   metrics.ts     # Central metric definitions — single source of truth for all tracked metrics
+  profiles.ts    # Athlete event type definitions (EVENT_TYPE_CONFIG, getEventTypeTitle)
+  timezones.ts   # Timezone groups and labels (TIMEZONE_CONFIG, getTimezoneLabel)
 context/         # AuthContext for user/session state
 lib/
   supabase.ts    # Supabase client init (uses NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -89,7 +91,9 @@ Data is cached in `sessionStorage` (`userProfile`, `dailyLogs`). Components chec
 
 ### Event Type System
 
-Five event types: runner, jumper, thrower, hurdler, pole_vaulter. Users select types during onboarding via `ProfileSelectionModal`. Metrics and options are filtered by the user's event types throughout the app.
+Five event types: runner, jumper, thrower, hurdler, pole_vaulter. Defined in `config/profiles.ts` as `EVENT_TYPE_CONFIG` — single source of truth for values, display titles, and descriptions. Users select types during onboarding via `ProfileSelectionModal` and can update them in Settings. Metrics and options are filtered by the user's event types throughout the app. Use `getEventTypeTitle(value)` to resolve a stored value to its display name.
+
+Timezone options are defined in `config/timezones.ts` as `TIMEZONE_CONFIG` (grouped by region). Use `getTimezoneLabel(value)` to resolve an IANA timezone value to its display label.
 
 ### Conditional Field Visibility
 

@@ -1,40 +1,7 @@
 // components/ProfileSelectionModal.tsx
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-
-interface ProfileOption {
-  value: string;
-  title: string;
-  description: string;
-}
-
-const PROFILE_OPTIONS: ProfileOption[] = [
-  {
-    value: 'runner',
-    title: 'Runner',
-    description: 'Distance and sprint events (100m-10000m), Cross Country'
-  },
-  {
-    value: 'jumper',
-    title: 'Jumper',
-    description: 'Long jump, high jump, triple jump'
-  },
-  {
-    value: 'thrower',
-    title: 'Thrower',
-    description: 'Shot put, discus, javelin, hammer'
-  },
-  {
-    value: 'hurdler',
-    title: 'Hurdler',
-    description: '100m/110m hurdles, 300m hurdles'
-  },
-  {
-    value: 'pole_vaulter',
-    title: 'Pole Vaulter',
-    description: 'Pole vault events'
-  }
-];
+import { EVENT_TYPE_CONFIG } from '../../config/profiles';
 
 interface ProfileSelectionModalProps {
   userId: string;
@@ -98,7 +65,7 @@ export default function ProfileSelectionModal({ userId, onComplete }: ProfileSel
         </div>
 
         <div className="profile-options">
-          {PROFILE_OPTIONS.map(option => (
+          {EVENT_TYPE_CONFIG.map(option => (
             <div 
               key={option.value}
               className="profile-option"

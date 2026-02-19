@@ -6,105 +6,8 @@ import { MoreVertical } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { UserProfile } from '@/types/models';
-
-// ─── Timezone Data ─────────────────────────────────────────────────────────────
-
-const ENGLISH_TIMEZONES = [
-  {
-    group: 'United States',
-    zones: [
-      { label: 'Eastern Time (ET) — New York', value: 'America/New_York' },
-      { label: 'Central Time (CT) — Chicago', value: 'America/Chicago' },
-      { label: 'Mountain Time (MT) — Denver', value: 'America/Denver' },
-      { label: 'Pacific Time (PT) — Los Angeles', value: 'America/Los_Angeles' },
-      { label: 'Alaska Time — Anchorage', value: 'America/Anchorage' },
-      { label: 'Hawaii Time — Honolulu', value: 'Pacific/Honolulu' },
-    ],
-  },
-  {
-    group: 'Canada',
-    zones: [
-      { label: 'Atlantic Time (AT) — Halifax', value: 'America/Halifax' },
-      { label: 'Eastern Time (ET) — Toronto', value: 'America/Toronto' },
-      { label: 'Central Time (CT) — Winnipeg', value: 'America/Winnipeg' },
-      { label: 'Mountain Time (MT) — Edmonton', value: 'America/Edmonton' },
-      { label: 'Pacific Time (PT) — Vancouver', value: 'America/Vancouver' },
-    ],
-  },
-  {
-    group: 'United Kingdom & Ireland',
-    zones: [
-      { label: 'London (GMT/BST)', value: 'Europe/London' },
-      { label: 'Dublin (GMT/IST)', value: 'Europe/Dublin' },
-    ],
-  },
-  {
-    group: 'Australia',
-    zones: [
-      { label: 'Perth (AWST)', value: 'Australia/Perth' },
-      { label: 'Darwin (ACST)', value: 'Australia/Darwin' },
-      { label: 'Adelaide (ACST/ACDT)', value: 'Australia/Adelaide' },
-      { label: 'Brisbane (AEST)', value: 'Australia/Brisbane' },
-      { label: 'Sydney / Melbourne (AEST/AEDT)', value: 'Australia/Sydney' },
-    ],
-  },
-  {
-    group: 'New Zealand',
-    zones: [
-      { label: 'Auckland (NZST/NZDT)', value: 'Pacific/Auckland' },
-    ],
-  },
-  {
-    group: 'Africa',
-    zones: [
-      { label: 'Accra / Abuja (GMT/WAT)', value: 'Africa/Lagos' },
-      { label: 'Nairobi (EAT)', value: 'Africa/Nairobi' },
-      { label: 'Johannesburg (SAST)', value: 'Africa/Johannesburg' },
-    ],
-  },
-  {
-    group: 'Asia & Pacific',
-    zones: [
-      { label: 'Mumbai / New Delhi (IST)', value: 'Asia/Kolkata' },
-      { label: 'Karachi (PKT)', value: 'Asia/Karachi' },
-      { label: 'Kuala Lumpur (MYT)', value: 'Asia/Kuala_Lumpur' },
-      { label: 'Singapore (SGT)', value: 'Asia/Singapore' },
-      { label: 'Manila (PHT)', value: 'Asia/Manila' },
-    ],
-  },
-  {
-    group: 'Caribbean',
-    zones: [
-      { label: 'Jamaica (EST)', value: 'America/Jamaica' },
-      { label: 'Port of Spain (AST)', value: 'America/Port_of_Spain' },
-    ],
-  },
-];
-
-// ─── Profile Options ───────────────────────────────────────────────────────────
-
-const PROFILE_OPTIONS = [
-  { value: 'runner', title: 'Runner', description: 'Distance and sprint events (100m-10000m), Cross Country' },
-  { value: 'jumper', title: 'Jumper', description: 'Long jump, high jump, triple jump' },
-  { value: 'thrower', title: 'Thrower', description: 'Shot put, discus, javelin, hammer' },
-  { value: 'hurdler', title: 'Hurdler', description: '100m/110m hurdles, 300m hurdles' },
-  { value: 'pole_vaulter', title: 'Pole Vaulter', description: 'Pole vault events' },
-];
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTimezoneLabel(value: string): string {
-  for (const group of ENGLISH_TIMEZONES) {
-    for (const zone of group.zones) {
-      if (zone.value === value) return zone.label;
-    }
-  }
-  return value;
-}
-
-function formatEventType(type: string): string {
-  return type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
+import { EVENT_TYPE_CONFIG, getEventTypeTitle } from '../config/profiles';
+import { TIMEZONE_CONFIG, getTimezoneLabel } from '../config/timezones';
 
 function useBodyLock() {
   useEffect(() => {
@@ -266,7 +169,7 @@ function EditTimezoneModal({ userProfile, onClose, onSave }: {
                 value={timezone}
                 onChange={e => setTimezone(e.target.value)}
               >
-                {ENGLISH_TIMEZONES.map(group => (
+                {TIMEZONE_CONFIG.map(group => (
                   <optgroup key={group.group} label={group.group}>
                     {group.zones.map(zone => (
                       <option key={zone.value} value={zone.value}>{zone.label}</option>
@@ -348,7 +251,7 @@ function EditProfilesModal({ userProfile, onClose, onSave }: {
             <h3>Select all that apply...</h3>
           </div>
           <div className="profile-options">
-            {PROFILE_OPTIONS.map(option => (
+            {EVENT_TYPE_CONFIG.map(option => (
               <div
                 key={option.value}
                 className="profile-option"
@@ -518,7 +421,7 @@ export default function Settings() {
                   <span className="settings-row-label">Athlete Profiles</span>
                   <span className="settings-row-value">
                     {userProfile?.event_types?.length
-                      ? userProfile.event_types.map(formatEventType).join(', ')
+                      ? userProfile.event_types.map(getEventTypeTitle).join(', ')
                       : 'None selected'}
                   </span>
                 </div>
