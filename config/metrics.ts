@@ -205,6 +205,13 @@ export const RECOVERY_METRIC_CONFIG = {
         fillColor: "#0000FF",
         textColor: "#FFFFFF",
       },
+      rolling_out: {
+        label: "Rolling Out",
+        category: "additional",
+        eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+        fillColor: "#efbf04",
+        textColor: "#000000",
+      }
     },
   },
   notes: {

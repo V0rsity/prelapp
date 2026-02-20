@@ -2155,6 +2155,10 @@ html, body {
   color: #ffffff;
 }
 
+.modal-content .main-container.recovery-overview {
+  padding: 0.5rem;
+}
+
 /* Desktop View (Min-width 1024px) */
 @media (min-width: 1024px) {
   .main-content {

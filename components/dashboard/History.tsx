@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { READINESS_METRIC_CONFIG, TRAINING_METRIC_CONFIG, RECOVERY_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
 import ViewLogModal from "./ViewLogModal";
 import ViewTrainingModal from "./ViewTrainingModal";
+import ViewRecoveryModal from "./ViewRecoveryModal";
 
 interface Props {
   dailyLogs: any[];
@@ -87,6 +88,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
   const readinessMetrics = getAvailableReadinessMetrics();
   const [selectedLog, setSelectedLog] = useState<any>(null);
   const [selectedTrainingLog, setSelectedTrainingLog] = useState<any>(null);
+  const [selectedRecoveryLog, setSelectedRecoveryLog] = useState<any>(null);
 
   return (
     <div className="history-section">
@@ -139,7 +141,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
               )}
 
               {log.recovery_complete && recoveryInfo && (
-                <button className="history-card" style={{ cursor: "default" }}>
+                <button className="history-card" onClick={() => setSelectedRecoveryLog(log)} style={{ cursor: "pointer" }}>
                   <div className="history-card-left">
                     <span className="history-card-title">Recovery</span>
                     <span className="history-card-subtitle">{recoveryInfo.display}</span>
@@ -173,6 +175,14 @@ export default function History({ dailyLogs, userProfile }: Props) {
         isOpen={!!selectedTrainingLog}
         onClose={() => setSelectedTrainingLog(null)}
         log={selectedTrainingLog}
+        formatDate={formatDateShort}
+        userProfile={userProfile}
+      />
+
+      <ViewRecoveryModal
+        isOpen={!!selectedRecoveryLog}
+        onClose={() => setSelectedRecoveryLog(null)}
+        log={selectedRecoveryLog}
         formatDate={formatDateShort}
         userProfile={userProfile}
       />
