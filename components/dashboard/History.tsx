@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { READINESS_METRIC_CONFIG, TRAINING_METRIC_CONFIG, RECOVERY_METRIC_CONFIG, getSorenessMetricsShortView } from "@/config/metrics";
 import ViewLogModal from "./ViewLogModal";
+import ViewTrainingModal from "./ViewTrainingModal";
 
 interface Props {
   dailyLogs: any[];
@@ -85,6 +86,7 @@ function getRecoveryActivitiesDisplay(activities: string[]) {
 export default function History({ dailyLogs, userProfile }: Props) {
   const readinessMetrics = getAvailableReadinessMetrics();
   const [selectedLog, setSelectedLog] = useState<any>(null);
+  const [selectedTrainingLog, setSelectedTrainingLog] = useState<any>(null);
 
   return (
     <div className="history-section">
@@ -124,7 +126,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
               )}
 
               {log.training_complete && intensityInfo && (
-                <button className="history-card" style={{ cursor: "default" }}>
+                <button className="history-card" onClick={() => setSelectedTrainingLog(log)} style={{ cursor: "pointer" }}>
                   <div className="history-card-left">
                     <span className="history-card-title">Training</span>
                     <span className="history-card-subtitle">{trainingTypes}</span>
@@ -144,7 +146,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
                   </div>
                   <div className="history-card-right">
                     <span className="history-card-count">{recoveryInfo.count}</span>
-                    <span className="history-card-meta">Activities</span>
+                    <span className="history-card-meta">{recoveryInfo.count === 1 ? "Activity" : "Activities"}</span>
                   </div>
                 </button>
               )}
@@ -165,6 +167,14 @@ export default function History({ dailyLogs, userProfile }: Props) {
         getColorForScore={getColorForScore}
         availableReadinessMetrics={readinessMetrics}
         availableSorenessMetrics={selectedLog ? getAvailableSorenessMetrics(selectedLog) : []}
+      />
+
+      <ViewTrainingModal
+        isOpen={!!selectedTrainingLog}
+        onClose={() => setSelectedTrainingLog(null)}
+        log={selectedTrainingLog}
+        formatDate={formatDateShort}
+        userProfile={userProfile}
       />
     </div>
   );
