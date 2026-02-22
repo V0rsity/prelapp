@@ -128,9 +128,15 @@ export default function EditTrainingModal({ isOpen, onClose, log, userProfile, o
     setIsSubmitting(true);
 
     try {
+      // Determine if there's meaningful training data beyond just intensity
+      const hasTrainingData = Boolean(
+        (formState.types?.length ?? 0) > 0 ||
+        formState.notes?.trim()
+      );
+
       // Build log data from form state
       const logData: any = {
-        training_complete: true,
+        training_complete: hasTrainingData,
       };
 
       Object.entries(TRAINING_METRIC_CONFIG).forEach(([key, config]) => {

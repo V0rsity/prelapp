@@ -129,8 +129,14 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
     setIsSubmitting(true);
 
     try {
+      // Determine if there's any meaningful recovery data
+      const hasRecoveryData = Boolean(
+        (formState.activities?.length ?? 0) > 0 ||
+        formState.notes?.trim()
+      );
+
       const logData: any = {
-        recovery_complete: true,
+        recovery_complete: hasRecoveryData,
         recovery_activities: formState.activities && formState.activities.length > 0 ? formState.activities : null,
         recovery_notes: formState.notes || null,
       };

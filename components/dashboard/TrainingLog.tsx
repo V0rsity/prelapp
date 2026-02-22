@@ -16,6 +16,7 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Dynamic form state based on config
   const [formState, setFormState] = useState<Record<string, any>>(() => {
@@ -61,6 +62,7 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
       [fieldKey]: [...prev[fieldKey], value]
     }));
     setOpenDropdowns(prev => ({ ...prev, [fieldKey]: false }));
+    if (fieldKey === 'types') setSubmitError("");
   };
 
   const removeMultiselectValue = (fieldKey: string, value: string) => {
@@ -89,6 +91,7 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
 
   const updateFieldValue = (fieldKey: string, value: any) => {
     setFormState(prev => ({ ...prev, [fieldKey]: value }));
+    if (fieldKey === 'notes' && value?.trim()) setSubmitError("");
   };
 
   const handleClose = () => {
@@ -103,6 +106,7 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
         : config.defaultValue;
     });
     setFormState(initialState);
+    setSubmitError("");
     // Clear open dropdowns
     setOpenDropdowns({});
   };
@@ -110,6 +114,17 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
   const handleSubmit = async () => {
     if (!user || !currentDate || isSubmitting) return;
 
+    const hasTrainingData = Boolean(
+      (formState.types?.length ?? 0) > 0 ||
+      formState.notes?.trim()
+    );
+
+    if (!hasTrainingData) {
+      setSubmitError("Please add at least one training type or notes before submitting.");
+      return;
+    }
+
+    setSubmitError("");
     setIsSubmitting(true);
 
     try {
@@ -406,8 +421,11 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
 
       {visibleFields.map(({ key, config }) => renderField(key, config))}
 
-      <button 
-        className="submit-button" 
+      {submitError && (
+        <div className="profile-error">{submitError}</div>
+      )}
+      <button
+        className="submit-button"
         onClick={handleSubmit}
         disabled={isSubmitting}
       >

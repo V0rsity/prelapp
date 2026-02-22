@@ -100,7 +100,7 @@ export default function History({ dailyLogs, userProfile }: Props) {
       {dailyLogs.length === 0 ? (
         <p>No logs yet.</p>
       ) : (
-        dailyLogs.map((log) => {
+        dailyLogs.filter((log) => log.morning_complete || log.training_complete || log.recovery_complete).map((log) => {
           const intensityInfo = log.training_complete ? getIntensityInfo(log.training_intensity) : null;
           const trainingTypes = log.training_complete ? getTrainingTypesDisplay(log.training_types) : "";
           const recoveryInfo = log.recovery_complete ? getRecoveryActivitiesDisplay(log.recovery_activities) : null;

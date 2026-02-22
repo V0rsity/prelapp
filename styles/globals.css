@@ -1247,6 +1247,10 @@ html, body {
   font-size: 1.125rem;
 }
 
+.training-log .profile-error {
+  margin-top: 1rem;
+}
+
 .training-log-title {
   font-size: 1.75rem;
   font-weight: 600;
