@@ -365,14 +365,21 @@ function DeleteAccountModal({ userId, onClose }: {
     setIsDeleting(true);
     setError(null);
     try {
-      await supabase.from('daily_logs').delete().eq('user_id', userId);
-      await supabase.from('users').delete().eq('id', userId);
+      const res = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || 'Failed to delete account');
+      }
       sessionStorage.removeItem('userProfile');
       sessionStorage.removeItem('dailyLogs');
       await supabase.auth.signOut();
       router.push('/');
-    } catch {
-      setError('Failed to delete account. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete account. Please try again.');
       setIsDeleting(false);
     }
   };
