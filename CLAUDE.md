@@ -128,3 +128,69 @@ Weighted average of morning metrics (sleep/energy weighted 1.5x, others 1.0x, so
 ### Path Alias
 
 `@/*` maps to the project root (configured in `tsconfig.json`).
+
+---
+
+## Airtable CRM Integration
+
+### Overview
+
+Two Airtable tables receive data from the app via server-side API routes that keep the API key secret:
+
+| Trigger | Route | Method | Table |
+|---|---|---|---|
+| Signup | `POST /api/airtable` | POST (create) | Users |
+| Profile selection | `POST /api/airtable` | PATCH + upsert | Users |
+| Settings update (name/timezone/profiles) | `POST /api/airtable` | PATCH + upsert | Users |
+| Contact form submission | `POST /api/contact` | POST (create) | Feedback |
+
+All Airtable calls are **fire-and-forget** (`.catch(() => {})`). They never block the user's primary action.
+
+### Field ID Config
+
+All Airtable field IDs live in **`config/airtable.ts`** — the single source of truth. Never hardcode field names or IDs elsewhere.
+
+```ts
+AIRTABLE_USERS_FIELDS    // Users table field IDs
+AIRTABLE_FEEDBACK_FIELDS // Feedback table field IDs
+```
+
+Always use field IDs (not field names) as keys in the `fields` object sent to Airtable.
+
+### API Route Shape — `/api/airtable`
+
+```ts
+// Create (signup) — plain POST to Airtable
+{ fields: { [AT.supabaseId]: id, [AT.name]: "...", ... } }
+
+// Upsert (settings/profile) — PATCH with performUpsert
+{ upsert: true, fields: { [AT.supabaseId]: id, [AT.xxx]: value } }
+```
+
+The route uses `method: upsert ? 'PATCH' : 'POST'` when calling Airtable.
+
+### Critical Airtable API Rules — DO NOT FORGET
+
+1. **Create = POST, Update/Upsert = PATCH.** Using POST for `performUpsert` returns `INVALID_REQUEST_UNKNOWN`. Always use PATCH for any call that includes `performUpsert`.
+
+2. **`performUpsert` belongs on PATCH only.** Structure:
+   ```json
+   { "performUpsert": { "fieldsToMergeOn": ["fieldId"] }, "records": [{ "fields": { ... } }] }
+   ```
+
+3. **`fieldsToMergeOn` takes field IDs directly** (no extra flags needed when using PATCH).
+
+4. **Multiple select values must exactly match predefined option names** (case-sensitive, underscore vs hyphen matters). App event type values: `runner`, `jumper`, `thrower`, `hurdler`, `pole_vaulter` — Airtable options must match these exactly.
+
+5. **Do not send date fields with time components** to a Date-only Airtable field — use `YYYY-MM-DD` format only.
+
+6. **`createdAt` and `submittedAt` are defaulted in Airtable** — do not send them from the app.
+
+### Environment Variables
+
+```
+AIRTABLE_API_KEY=
+AIRTABLE_BASE_ID=
+AIRTABLE_USERS_TABLE_ID=
+AIRTABLE_FEEDBACK_TABLE_ID=
+```

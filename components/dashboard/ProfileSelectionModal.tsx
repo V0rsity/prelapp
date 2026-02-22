@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { EVENT_TYPE_CONFIG } from '../../config/profiles';
+import { AIRTABLE_USERS_FIELDS as AT } from '../../config/airtable';
 
 interface ProfileSelectionModalProps {
   userId: string;
@@ -46,6 +47,18 @@ export default function ProfileSelectionModal({ userId, onComplete }: ProfileSel
         profile.event_types = selectedProfiles;
         sessionStorage.setItem('userProfile', JSON.stringify(profile));
       }
+
+      fetch('/api/airtable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upsert: true,
+          fields: {
+            [AT.supabaseId]: userId,
+            [AT.eventTypes]: selectedProfiles,
+          },
+        }),
+      }).catch(() => {});
 
       onComplete();
     } catch (err) {

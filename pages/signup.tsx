@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { MoreVertical } from "lucide-react";
+import { AIRTABLE_USERS_FIELDS as AT } from "../config/airtable";
 
 const ENGLISH_TIMEZONES = [
   {
@@ -158,6 +159,19 @@ export default function Signup() {
         .eq("id", authData.user.id);
 
       if (dbError) throw dbError;
+
+      fetch('/api/airtable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            [AT.supabaseId]: authData.user.id,
+            [AT.name]:       `${firstName.trim()} ${lastName.trim()}`,
+            [AT.email]:      email,
+            [AT.timezone]:   timezone,
+          },
+        }),
+      }).catch(() => {});
 
       router.push("/dashboard");
     } catch (err: any) {

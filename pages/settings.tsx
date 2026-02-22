@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { UserProfile } from '@/types/models';
 import { EVENT_TYPE_CONFIG, getEventTypeTitle } from '../config/profiles';
 import { TIMEZONE_CONFIG, getTimezoneLabel } from '../config/timezones';
+import { AIRTABLE_USERS_FIELDS as AT } from '../config/airtable';
 
 function useBodyLock() {
   useEffect(() => {
@@ -58,6 +59,17 @@ function EditNameModal({ userProfile, onClose, onSave }: {
         .update({ first_name: firstName.trim(), last_name: lastName.trim() })
         .eq('id', userProfile.id);
       if (updateError) throw updateError;
+      fetch('/api/airtable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upsert: true,
+          fields: {
+            [AT.supabaseId]: userProfile.id,
+            [AT.name]:       `${firstName.trim()} ${lastName.trim()}`,
+          },
+        }),
+      }).catch(() => {});
       onSave({ first_name: firstName.trim(), last_name: lastName.trim() });
     } catch {
       setError('Failed to save. Please try again.');
@@ -142,6 +154,17 @@ function EditTimezoneModal({ userProfile, onClose, onSave }: {
         .update({ timezone })
         .eq('id', userProfile.id);
       if (updateError) throw updateError;
+      fetch('/api/airtable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upsert: true,
+          fields: {
+            [AT.supabaseId]: userProfile.id,
+            [AT.timezone]:   timezone,
+          },
+        }),
+      }).catch(() => {});
       onSave({ timezone });
     } catch {
       setError('Failed to save. Please try again.');
@@ -231,6 +254,17 @@ function EditProfilesModal({ userProfile, onClose, onSave }: {
         .update({ event_types: selectedProfiles })
         .eq('id', userProfile.id);
       if (updateError) throw updateError;
+      fetch('/api/airtable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upsert: true,
+          fields: {
+            [AT.supabaseId]: userProfile.id,
+            [AT.eventTypes]: selectedProfiles,
+          },
+        }),
+      }).catch(() => {});
       onSave({ event_types: selectedProfiles });
     } catch {
       setError('Failed to save. Please try again.');
@@ -519,7 +553,7 @@ export default function Settings() {
             <div className="popup-menu">
               <button onClick={handleLogout}><p>Logout</p></button>
               <button><p>Help & FAQ</p></button>
-              <button><p>Contact Us</p></button>
+              <button onClick={() => router.push('/feedback')}><p>Feedback</p></button>
             </div>
           )}
         </div>

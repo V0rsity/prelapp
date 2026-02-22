@@ -203,7 +203,7 @@ export default function Dashboard() {
               <button onClick={handleLogout}><p>Logout</p></button>
               <button onClick={() => router.push('/settings')}><p>Settings</p></button>
               <button><p>Help & FAQ</p></button>
-              <button><p>Contact Us</p></button>
+              <button onClick={() => router.push('/feedback')}><p>Feedback</p></button>
             </div>
           )}
         </div>
