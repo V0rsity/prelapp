@@ -392,7 +392,7 @@ export default function TrainingOverview({ existingLog, userProfile, dailyLogs, 
                 <div className="consistency-label">Past 7 days</div>
               </div>
               <div className="consistency-item">
-                <div className="consistency-value">{consistencyStats.past30Days} / 30</div>
+                <div className="consistency-value">{consistencyStats.past30Days}/30</div>
                 <div className="consistency-label">Past 30 days</div>
               </div>
             </div>

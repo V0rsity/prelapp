@@ -1,6 +1,6 @@
 // components/dashboard/TrainingLog.tsx
 import { useState, useContext, useRef, useEffect } from "react";
-import { Minus, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { TRAINING_METRIC_CONFIG, getVisibleTrainingFields, shouldShowField } from "@/config/metrics";
@@ -402,11 +402,15 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
 
   if (!isOpen) {
     return (
-      <div className="main-container closed training-log" onClick={() => setIsOpen(true)}>
+      <div className="main-container closed training-log">
         <div className="training-log-header">
           <span className="training-log-title">Training Log</span>
-          <Plus size={24} className="training-log-icon" />
         </div>
+        <button className="view-button" onClick={() => setIsOpen(true)}>
+          <ChevronDown size={24} />
+          Add Training Data
+          <ChevronDown size={24} />
+        </button>
       </div>
     );
   }
@@ -415,7 +419,6 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
     <div className="main-container training-log">
       <div className="training-log-header">
         <span className="training-log-title">Training Log</span>
-        <Minus size={24} className="training-log-icon" onClick={handleClose} />
       </div>
       <h3 className="subheading">How was your practice?</h3>
 
@@ -430,6 +433,12 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
         disabled={isSubmitting}
       >
         {isSubmitting ? "Submitting..." : "Submit"}
+      </button>
+
+      <button className="view-button" onClick={handleClose}>
+        <ChevronUp size={24} />
+        Hide Log
+        <ChevronUp size={24} />
       </button>
     </div>
   );

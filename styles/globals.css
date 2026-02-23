@@ -1251,6 +1251,10 @@ html, body {
   margin-top: 1rem;
 }
 
+.training-log.closed .view-button {
+  margin-top: 1rem;
+}
+
 .training-log-title {
   font-size: 1.75rem;
   font-weight: 600;
@@ -1673,6 +1677,11 @@ html, body {
   min-height: 1rem;
 }
 
+.recovery-log .profile-error {
+  margin-top: 1rem;
+}
+
+
 .recovery-log-subtitle {
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.7);
@@ -1683,10 +1692,6 @@ html, body {
 /* ===================================
    POST-TRAINING CHECKLIST
    =================================== */
-
-.post-training-section {
-  margin-bottom: 1.5rem;
-}
 
 .post-training-heading {
   font-size: 1rem;

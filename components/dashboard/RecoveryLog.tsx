@@ -1,6 +1,6 @@
 // components/dashboard/RecoveryLog.tsx
 import { useState, useContext, useRef, useEffect } from "react";
-import { Minus, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { RECOVERY_METRIC_CONFIG, RecoveryActivityOption } from "@/config/metrics";
@@ -14,11 +14,18 @@ interface RecoveryLogProps {
 
 export default function RecoveryLog({ currentDate, userProfile, existingLog, onComplete }: RecoveryLogProps) {
   const { user } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Check if training is complete
   const trainingComplete = existingLog?.training_complete === true;
+
+  const [isOpen, setIsOpen] = useState(trainingComplete);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (trainingComplete) setIsOpen(true);
+  }, [trainingComplete]);
 
   // Initialize form state
   const [formState, setFormState] = useState<Record<string, any>>(() => {
@@ -91,13 +98,15 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
 
   const handleClose = () => {
     setIsOpen(false);
+    setPage(1);
+    setSubmitError("");
     // Reset form state to defaults
     const initialState: Record<string, any> = {};
     Object.entries(RECOVERY_METRIC_CONFIG).forEach(([key, config]) => {
       const dbField = `recovery_${key}`;
       const existingValue = existingLog?.[dbField];
-      initialState[key] = existingValue !== undefined && existingValue !== null 
-        ? existingValue 
+      initialState[key] = existingValue !== undefined && existingValue !== null
+        ? existingValue
         : config.defaultValue;
     });
     setFormState(initialState);
@@ -107,6 +116,13 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
   const handleSubmit = async () => {
     if (!user || !currentDate || isSubmitting) return;
 
+    const hasRecoveryData = (formState.activities?.length ?? 0) > 0 || formState.notes?.trim();
+    if (!hasRecoveryData) {
+      setSubmitError("Please add at least one activity or notes before submitting.");
+      return;
+    }
+
+    setSubmitError("");
     setIsSubmitting(true);
 
     try {
@@ -213,11 +229,15 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
 
   if (!isOpen) {
     return (
-      <div className="main-container closed training-log" onClick={() => setIsOpen(true)}>
+      <div className="main-container closed training-log">
         <div className="training-log-header">
-          <span className="training-log-title">Recovery</span>
-          <Plus size={24} className="training-log-icon" />
+          <span className="training-log-title">Recovery Log</span>
         </div>
+        <button className="view-button" onClick={() => setIsOpen(true)}>
+          <ChevronDown size={24} />
+          Add Recovery Data
+          <ChevronDown size={24} />
+        </button>
       </div>
     );
   }
@@ -225,16 +245,17 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
   const postTrainingActivities = getPostTrainingActivities();
   const additionalRecoveryActivities = getAdditionalRecoveryActivities();
   const selectedActivities = formState.activities || [];
+  const showChecklist = trainingComplete && postTrainingActivities.length > 0;
 
-  return (
-    <div className="main-container recovery-log">
-      <div className="training-log-header">
-        <span className="training-log-title">Recovery</span>
-        <Minus size={24} className="training-log-icon" onClick={handleClose} />
-      </div>
-      <h3 className="subheading">So you're always at your best</h3>
+  // Page 1: Post-training checklist
+  if (showChecklist && page === 1) {
+    return (
+      <div className="main-container recovery-log">
+        <div className="training-log-header">
+          <span className="training-log-title">Recovery Log</span>
+        </div>
+        <h3 className="subheading">So you're always at your best!</h3>
 
-      {trainingComplete && postTrainingActivities.length > 0 && (
         <div className="post-training-section">
           <label className="training-label">Post-Training Checklist</label>
           <div className="checklist-container">
@@ -265,86 +286,100 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
             })}
           </div>
         </div>
-      )}
+
+        <div className="button-group" style={{ justifyContent: 'flex-end' }}>
+          <button className="submit-button" onClick={() => setPage(2)}>
+            Next
+          </button>
+        </div>
+
+        <button className="view-button" onClick={handleClose}>
+          <ChevronUp size={24} />
+          Hide Log
+          <ChevronUp size={24} />
+        </button>
+      </div>
+    );
+  }
+
+  // Page 2 (or single page when no checklist)
+  return (
+    <div className="main-container recovery-log">
+      <div className="training-log-header">
+        <span className="training-log-title">Recovery Log</span>
+      </div>
+      <h3 className="subheading">So you're always at your best!</h3>
 
       {(additionalRecoveryActivities.length > 0 || selectedActivities.some((key: string) => {
         const activityEntry = Object.entries(RECOVERY_METRIC_CONFIG.activities.options || {})
           .find(([optKey]) => optKey === key);
         if (!activityEntry) return false;
         const [_, activity] = activityEntry as [string, any];
-        return trainingComplete 
+        return trainingComplete
           ? activity.category === 'additional'
           : activity.category === 'both' || activity.category === 'additional';
       })) && (
         <div className="training-section">
-        <label className="training-label">
-          {trainingComplete ? "Additional Recovery" : "Recovery Activities"}
-        </label>
-        <div className="training-types-container">
-          {selectedActivities
-            .map((key: string) => {
-              // Find the activity in all options (not just additionalRecoveryActivities)
-              const activityEntry = Object.entries(RECOVERY_METRIC_CONFIG.activities.options || {})
-                .find(([optKey]) => optKey === key);
-              
-              if (!activityEntry) return null;
-              
-              const [optKey, activity] = activityEntry as [string, any];
-              
-              // Only render if it's in the additional recovery category for current state
-              const shouldRender = trainingComplete 
-                ? activity.category === 'additional'
-                : activity.category === 'both' || activity.category === 'additional';
-              
-              if (!shouldRender) return null;
-              
-              const style = {
-                backgroundColor: activity.fillColor || "#567567",
-                color: activity.textColor || "#000000",
-                border: `2px solid ${activity.fillColor || "#567567"}`,
-              };
-
-              return (
-                <button
-                  key={key}
-                  onClick={() => removeMultiselectValue('activities', key)}
-                  className="training-type-pill active"
-                  style={style}
-                >
-                  {activity.label}
-                  <X size={16} className="pill-x" />
-                </button>
-              );
-            })
-            .filter(Boolean)}
-          {additionalRecoveryActivities.length > 0 && (
-            <div 
-              className="add-pill-wrapper" 
-              ref={(el) => { dropdownRefs.current['activities'] = el; }}
-            >
-              <button 
-                className="add-pill-button"
-                onClick={() => toggleDropdown('activities')}
+          <label className="training-label">
+            {trainingComplete ? "Additional Recovery" : "Recovery Activities"}
+          </label>
+          <div className="training-types-container">
+            {selectedActivities
+              .map((key: string) => {
+                const activityEntry = Object.entries(RECOVERY_METRIC_CONFIG.activities.options || {})
+                  .find(([optKey]) => optKey === key);
+                if (!activityEntry) return null;
+                const [_k, activity] = activityEntry as [string, any];
+                const shouldRender = trainingComplete
+                  ? activity.category === 'additional'
+                  : activity.category === 'both' || activity.category === 'additional';
+                if (!shouldRender) return null;
+                const style = {
+                  backgroundColor: activity.fillColor || "#567567",
+                  color: activity.textColor || "#000000",
+                  border: `2px solid ${activity.fillColor || "#567567"}`,
+                };
+                return (
+                  <button
+                    key={key}
+                    onClick={() => removeMultiselectValue('activities', key)}
+                    className="training-type-pill active"
+                    style={style}
+                  >
+                    {activity.label}
+                    <X size={16} className="pill-x" />
+                  </button>
+                );
+              })
+              .filter(Boolean)}
+            {additionalRecoveryActivities.length > 0 && (
+              <div
+                className="add-pill-wrapper"
+                ref={(el) => { dropdownRefs.current['activities'] = el; }}
               >
-                <Plus size={20} />
-              </button>
-              {openDropdowns['activities'] && (
-                <div className="pill-dropdown">
-                  {additionalRecoveryActivities.map((activity) => (
-                    <div
-                      key={activity.key}
-                      className="pill-dropdown-item"
-                      onClick={() => addMultiselectValue('activities', activity.key)}
-                    >
-                      {activity.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                <button
+                  className="add-pill-button"
+                  onClick={() => toggleDropdown('activities')}
+                >
+                  <Plus size={20} />
+                </button>
+                {openDropdowns['activities'] && (
+                  <div className="pill-dropdown">
+                    {additionalRecoveryActivities.map((activity) => (
+                      <div
+                        key={activity.key}
+                        className="pill-dropdown-item"
+                        onClick={() => addMultiselectValue('activities', activity.key)}
+                      >
+                        {activity.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       )}
 
       <div className="notes-container">
@@ -360,12 +395,29 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
         />
       </div>
 
-      <button 
-        className="submit-button" 
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Submitting..." : "Submit"}
+      {submitError && (
+        <div className="profile-error">{submitError}</div>
+      )}
+
+      <div className="button-group" style={!showChecklist ? { justifyContent: 'flex-end' } : undefined}>
+        {showChecklist && (
+          <button className="back-button" onClick={() => setPage(1)}>
+            Back
+          </button>
+        )}
+        <button
+          className="submit-button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </button>
+      </div>
+
+      <button className="view-button" onClick={handleClose}>
+        <ChevronUp size={24} />
+        Hide Log
+        <ChevronUp size={24} />
       </button>
     </div>
   );
