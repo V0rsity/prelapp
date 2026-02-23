@@ -1216,6 +1216,23 @@ html, body {
   cursor: not-allowed;
 }
 
+/* Reminder Banner */
+.reminder-banner {
+  background-color: #F2CE3A;
+  color: #000000;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  border: 2px solid #000000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0.75rem auto 0 auto;
+  align-self: center;
+  box-shadow: 0 0 7px 1.5px rgba(255, 255, 255, 0.18);
+}
+
 /* Training Log Styles */
 .training-log-container-closed {
   background: rgba(255, 255, 255, 0.1);

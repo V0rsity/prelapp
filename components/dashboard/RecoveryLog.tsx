@@ -1,6 +1,6 @@
 // components/dashboard/RecoveryLog.tsx
 import { useState, useContext, useRef, useEffect } from "react";
-import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X, Activity, ClipboardCheck } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { RECOVERY_METRIC_CONFIG, RecoveryActivityOption } from "@/config/metrics";
@@ -20,12 +20,8 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
   // Check if training is complete
   const trainingComplete = existingLog?.training_complete === true;
 
-  const [isOpen, setIsOpen] = useState(trainingComplete);
+  const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    if (trainingComplete) setIsOpen(true);
-  }, [trainingComplete]);
 
   // Initialize form state
   const [formState, setFormState] = useState<Record<string, any>>(() => {
@@ -232,6 +228,19 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
       <div className="main-container closed training-log">
         <div className="training-log-header">
           <span className="training-log-title">Recovery Log</span>
+        </div>
+        <div className="reminder-banner">
+          {trainingComplete ? (
+            <>
+              <ClipboardCheck size={16} strokeWidth={3} />
+              Complete a Post-Training Checklist!
+            </>
+          ) : (
+            <>
+              <Activity size={16} strokeWidth={3} />
+              Do Some Additional Recovery!
+            </>
+          )}
         </div>
         <button className="view-button" onClick={() => setIsOpen(true)}>
           <ChevronDown size={24} />

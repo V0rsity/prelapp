@@ -1,6 +1,6 @@
 // components/dashboard/TrainingLog.tsx
 import { useState, useContext, useRef, useEffect } from "react";
-import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X, Timer } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { TRAINING_METRIC_CONFIG, getVisibleTrainingFields, shouldShowField } from "@/config/metrics";
@@ -405,6 +405,10 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
       <div className="main-container closed training-log">
         <div className="training-log-header">
           <span className="training-log-title">Training Log</span>
+        </div>
+        <div className="reminder-banner">
+          <Timer size={16} strokeWidth={3} />
+          Be Sure to Record a Workout!
         </div>
         <button className="view-button" onClick={() => setIsOpen(true)}>
           <ChevronDown size={24} />
