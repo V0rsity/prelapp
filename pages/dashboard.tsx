@@ -157,7 +157,11 @@ export default function Dashboard() {
   // Render the appropriate component based on active tab
   const renderContent = () => {
     if (dataLoading) {
-      return <div className="loading-content"></div>;
+      return (
+        <div className="loading-content">
+          <div className="loading-spinner" />
+        </div>
+      );
     }
 
     const props = { dailyLogs, userProfile, refreshUserData, setIsAnyModalOpen } as any;
