@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { calculateReadinessScore } from "../../utils/readinessScore";
 import { SORENESS_METRIC_CONFIG, SorenessMetricKey, READINESS_METRIC_CONFIG, ReadinessMetricKey } from "@/config/metrics";
+import FeedbackModal from "./FeedbackModal";
 
 interface MorningReadinessProps {
   onComplete: () => void;
@@ -25,6 +26,7 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
   const { user } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<string | null>(null);
 
   // Dynamic general readiness state - automatically includes all metrics from config
   const [readinessValues, setReadinessValues] = useState<Record<ReadinessMetricKey, number>>(() => {
@@ -215,6 +217,27 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
             })}
           </div>
 
+          <button
+            type="button"
+            onClick={() => setFeedbackType("New Readiness Metric")}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(189, 221, 252, 0.18)',
+              border: '1px solid rgba(189, 221, 252, 0.45)',
+              borderRadius: '9999px',
+              padding: '3px 12px',
+              fontSize: '0.85rem',
+              color: '#BDDDFC',
+              cursor: 'pointer',
+              marginTop: '1rem',
+              marginLeft: '0.5rem',
+              width: 'fit-content',
+            }}
+          >
+            Anything missing?&nbsp;<span style={{ textDecoration: 'underline' }}>Let us know here!</span>
+          </button>
+
           <div className="button-group">
             <button className="submit-button next-button" onClick={() => setCurrentPage(2)}>
               Next
@@ -250,6 +273,27 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
               </div>
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setFeedbackType("New Soreness Metric")}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(189, 221, 252, 0.18)',
+              border: '1px solid rgba(189, 221, 252, 0.45)',
+              borderRadius: '9999px',
+              padding: '3px 12px',
+              fontSize: '0.85rem',
+              color: '#BDDDFC',
+              cursor: 'pointer',
+              marginTop: '1rem',
+              marginLeft: '0.5rem',
+              width: 'fit-content',
+            }}
+          >
+            Anything missing?&nbsp;<span style={{ textDecoration: 'underline' }}>Let us know here!</span>
+          </button>
 
           <div className="button-group">
             <button className="back-button" onClick={() => setCurrentPage(1)}>
@@ -292,6 +336,14 @@ export default function MorningReadiness({ onComplete, currentDate, userProfile,
           </div>
         </div>
       )}
+
+      <FeedbackModal
+        isOpen={feedbackType !== null}
+        onClose={() => setFeedbackType(null)}
+        userProfile={userProfile}
+        feedbackType={feedbackType ?? undefined}
+        context={feedbackType === 'New Readiness Metric' ? 'readiness' : 'soreness'}
+      />
     </div>
   );
 }

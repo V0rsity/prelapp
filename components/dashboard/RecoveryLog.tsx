@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Plus, X, Activity, ClipboardCheck } from "lucid
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { RECOVERY_METRIC_CONFIG, RecoveryActivityOption } from "@/config/metrics";
+import FeedbackModal from "./FeedbackModal";
 
 interface RecoveryLogProps {
   currentDate: string;
@@ -22,6 +23,7 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
 
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // Initialize form state
   const [formState, setFormState] = useState<Record<string, any>>(() => {
@@ -388,6 +390,25 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
               </div>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => setShowFeedbackModal(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(189, 221, 252, 0.18)',
+              border: '1px solid rgba(189, 221, 252, 0.45)',
+              borderRadius: '9999px',
+              padding: '3px 12px',
+              fontSize: '0.85rem',
+              color: '#BDDDFC',
+              cursor: 'pointer',
+              marginTop: '0.75rem',
+              width: 'fit-content',
+            }}
+          >
+            Anything missing?&nbsp;<span style={{ textDecoration: 'underline' }}>Let us know here!</span>
+          </button>
         </div>
       )}
 
@@ -428,6 +449,14 @@ export default function RecoveryLog({ currentDate, userProfile, existingLog, onC
         Hide Log
         <ChevronUp size={24} />
       </button>
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        userProfile={userProfile}
+        feedbackType="New Recovery Metric"
+        context="recovery"
+      />
     </div>
   );
 }

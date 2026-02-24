@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, message, user_id } = req.body;
+  const { name, email, message, user_id, feedback_type } = req.body;
 
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'name, email, and message are required' });
@@ -20,6 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
 
   if (user_id) fields[F.supabaseId] = user_id;
+  if (feedback_type) fields[F.feedback_type] = feedback_type;
 
   try {
     const response = await fetch(

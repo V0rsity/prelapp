@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Plus, X, Timer } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthContext } from "../../context/AuthContext";
 import { TRAINING_METRIC_CONFIG, getVisibleTrainingFields, shouldShowField } from "@/config/metrics";
+import FeedbackModal from "./FeedbackModal";
 
 interface TrainingLogProps {
   currentDate: string;
@@ -17,6 +18,7 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // Dynamic form state based on config
   const [formState, setFormState] = useState<Record<string, any>>(() => {
@@ -309,6 +311,27 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
                 </div>
               )}
             </div>
+            {fieldKey === 'types' && (
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'rgba(189, 221, 252, 0.18)',
+                  border: '1px solid rgba(189, 221, 252, 0.45)',
+                  borderRadius: '9999px',
+                  padding: '3px 12px',
+                  fontSize: '0.85rem',
+                  color: '#BDDDFC',
+                  cursor: 'pointer',
+                  marginTop: '0.75rem',
+                  width: 'fit-content',
+                }}
+              >
+                Anything missing?&nbsp;<span style={{ textDecoration: 'underline' }}>Let us know here!</span>
+              </button>
+            )}
           </div>
         );
 
@@ -444,6 +467,14 @@ export default function TrainingLog({ currentDate, userProfile, existingLog, onC
         Hide Log
         <ChevronUp size={24} />
       </button>
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        userProfile={userProfile}
+        feedbackType="New Activity Metric"
+        context="training"
+      />
     </div>
   );
 }

@@ -18,4 +18,5 @@ export const AIRTABLE_FEEDBACK_FIELDS = {
   message:     'fldvbE7B05VV3dRtq',
   supabaseId:  'fld5PlnzAwN0UtJXU',
   user:        'fld04gcuLDp3K9gz6',
+  feedback_type: 'fldCOhhouBcKjxXQa',
 } as const;

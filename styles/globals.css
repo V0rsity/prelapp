@@ -2185,6 +2185,11 @@ html, body {
   padding: 0.5rem;
 }
 
+.feedback-modal .notes-container {
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
 /* Desktop View (Min-width 1024px) */
 @media (min-width: 1024px) {
   .main-content {
