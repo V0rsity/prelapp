@@ -74,7 +74,7 @@ export const TRAINING_METRIC_CONFIG = {
     options: {
       1: { label: "Recovery", color: "#0000FF"},
       2: { label: "Easy", color: "#22C55E" },
-      3: { label: "Moderate", color: "#FFFF00" },
+      3: { label: "Moderate", color: "#fce205" },
       4: { label: "Difficult", color: "#F97316" },
       5: { label: "Intense", color: "#EF4444" },
     }
@@ -100,7 +100,7 @@ export const TRAINING_METRIC_CONFIG = {
       },
       sprints: {
         label: "Sprints",
-        fillColor: "#FFFF00",
+        fillColor: "#fce205",
         textColor: "#000000",
         eventTypes: ["runner", "hurdler"]
       },

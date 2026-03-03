@@ -1045,6 +1045,67 @@ html, body {
   outline: none;
 }
 
+/* Habit Tracker Calendar */
+.habit-tracker.chart-container{
+  margin-bottom: 1rem;
+}
+
+.habit-tracker.empty-state {
+  margin-bottom: 1rem;
+  height: 10.5rem;
+}
+
+.habit-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.habit-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 2px;
+}
+
+.habit-dow-label {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.habit-week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.habit-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  min-width: 20px;
+  transition: opacity 0.15s;
+}
+
+.habit-cell:hover {
+  opacity: 0.75;
+}
+
+.habit-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 50;
+  background: #1e293b;
+  color: #f1f5f9;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* Modal */
 
 .modal-overlay {
