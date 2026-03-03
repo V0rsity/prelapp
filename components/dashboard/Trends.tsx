@@ -416,7 +416,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
 
         {habitCalendarWeeks.length > 0 ? (
           <div className="habit-tracker chart-container">
-            <div className="habit-calendar">
+            <div className="habit-calendar" onMouseLeave={() => setHoveredCell(null)}>
               <div className="habit-dow-row">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                   <div key={d} className="habit-dow-label">{d}</div>
@@ -436,7 +436,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                         style={{ backgroundColor: isOutOfRange ? 'transparent' : (color ?? HABIT_NO_DATA_COLOR) }}
                         onMouseEnter={isOutOfRange ? undefined : e => setHoveredCell({ dateStr, x: e.clientX, y: e.clientY })}
                         onMouseMove={isOutOfRange ? undefined : e => setHoveredCell({ dateStr, x: e.clientX, y: e.clientY })}
-                        onMouseLeave={isOutOfRange ? undefined : () => setHoveredCell(null)}
+                        onMouseLeave={() => setHoveredCell(null)}
                       />
                     );
                   })}
@@ -517,7 +517,11 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
           return (
             <div
               className="habit-tooltip"
-              style={{ left: hoveredCell.x + 12, top: hoveredCell.y - 8 }}
+              style={{
+                left: hoveredCell.x + (hoveredCell.x > window.innerWidth / 2 ? -12 : 12),
+                top: hoveredCell.y - 8,
+                transform: hoveredCell.x > window.innerWidth / 2 ? 'translateX(-100%)' : 'none',
+              }}
             >
               <div style={{ fontWeight: 600 }}>{dateLabel}</div>
               {content}
