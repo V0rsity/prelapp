@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar, Cell } from 'recharts';
 import { X, TrendingUp, TrendingDown } from 'lucide-react';
 import { READINESS_METRIC_CONFIG, SORENESS_METRIC_CONFIG, TRAINING_METRIC_CONFIG, RECOVERY_METRIC_CONFIG } from '@/config/metrics';
@@ -131,6 +131,13 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
   const [habitMetric, setHabitMetric] = useState<string>('readiness_score');
   const [habitSubtype, setHabitSubtype] = useState<string>('');
   const [hoveredCell, setHoveredCell] = useState<{ dateStr: string; x: number; y: number } | null>(null);
+  // Clear the tooltip when the user scrolls on touch devices (iOS fires mouseenter on tap but
+  // never fires mouseleave when scrolling, so the tooltip would otherwise stick in place).
+  useEffect(() => {
+    const clear = () => setHoveredCell(null);
+    window.addEventListener('touchmove', clear, { passive: true });
+    return () => window.removeEventListener('touchmove', clear);
+  }, []);
   const [metric1, setMetric1] = useState<string | null>('readiness_score');
   const [metric2, setMetric2] = useState<string | null>('sleep_morning');
 
