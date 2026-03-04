@@ -645,7 +645,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                       key={`cell-${index}`}
                       fill={
                         barMetric === 'training_intensity'
-                          ? (TRAINING_METRIC_CONFIG.intensity.options[Math.round(entry.value ?? 0) as 1|2|3|4|5]?.color ?? '#64748b')
+                          ? (TRAINING_METRIC_CONFIG.intensity.options[Math.round(entry.value ?? 0) as 1|2|3|4|5]?.color ?? '#FFFFFF')
                           : barMetric === 'training_mileage'
                           ? '#0000FF'
                           : getBarColor(entry.value, barMetric === 'readiness_score')
