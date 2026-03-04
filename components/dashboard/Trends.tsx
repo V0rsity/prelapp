@@ -784,7 +784,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                 <YAxis
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
-                  domain={[0, 5]}
+                  domain={metric1 === 'training_mileage' || metric2 === 'training_mileage' ? [0, 5] : [1, 5]}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 {metric1 && (

@@ -19,7 +19,7 @@ export default function Landing() {
   return (
     <div>
       <h1>Welcome to Prelapp</h1>
-      <p>Track your readiness metrics and Strava runs.</p>
+      <p>Track your readiness metrics</p>
       <Link href="/login">Login</Link> |{" "}
       <Link href="/signup">Create Account</Link>
     </div>
