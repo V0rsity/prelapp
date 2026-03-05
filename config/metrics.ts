@@ -47,6 +47,11 @@ export const SORENESS_METRIC_CONFIG = {
     shortLabel: "Hamstring",
     eventTypes: ["runner", "jumper", "hurdler", "pole_vaulter"],
   },
+  glute: {
+    label: "Glute Soreness",
+    shortLabel: "Glutes",
+    eventTypes: ["runner", "jumper", "thrower", "hurdler", "pole_vaulter"],
+  },
   hip: {
     label: "Hip Soreness",
     shortLabel: "Hips",
@@ -176,16 +181,18 @@ export const RECOVERY_METRIC_CONFIG = {
         category: "both", // Only one that is both!
         requiresTraining: false,
         eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
+        fillColor: "#384959",
+        textColor: "#FFFFFF",
       },
       carbs_protein: {
         label: "Immediate Carbs / Protein",
-        description: "Ideally 30 mins. after training",
+        description: "Within 30-60 mins. after training",
         category: "post_training",
         requiresTraining: true,
         eventTypes: ["runner", "jumper", "hurdler", "thrower", "pole_vaulter"],
       },
       hydration: {
-        label: "Hydration",
+        label: "Immediate Rehydration",
         description: "Replenish electrolytes immediately",
         category: "post_training",
         requiresTraining: true,
