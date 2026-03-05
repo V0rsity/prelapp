@@ -223,6 +223,7 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
   const postTrainingActivities = getPostTrainingActivities();
   const additionalRecoveryActivities = getAdditionalRecoveryActivities();
   const selectedActivities = formState.activities || [];
+  const showChecklist = trainingComplete && postTrainingActivities.length > 0;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -239,48 +240,60 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
             <h3>Update your recovery activities.</h3>
           </div>
 
-          {/* Page 1: Recovery Activities */}
-          {currentPage === 1 && (
+          {/* Page 1: Post-Training Checklist (only shown when training is complete) */}
+          {showChecklist && currentPage === 1 && (
             <div className="training-page">
-              {trainingComplete && postTrainingActivities.length > 0 && (
-                <div className="post-training-section">
-                  <label className="training-label">Post-Training Checklist</label>
-                  <div className="checklist-container">
-                    {postTrainingActivities.map((activity) => {
-                      const isChecked = selectedActivities.includes(activity.key);
-                      return (
-                        <div
-                          key={activity.key}
-                          className={`checklist-item ${isChecked ? 'checked' : ''}`}
-                          onClick={() => toggleChecklistItem(activity.key)}
-                        >
-                          <div className="checkbox-wrapper">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {}}
-                              className="checklist-checkbox"
-                            />
-                          </div>
-                          <div className="checklist-content">
-                            <span className="checklist-label">{activity.label}</span>
-                            {activity.description && (
-                              <span className="checklist-description">{activity.description}</span>
-                            )}
-                          </div>
+              <div className="post-training-section">
+                <label className="training-label">Post-Training Checklist</label>
+                <div className="checklist-container">
+                  {postTrainingActivities.map((activity) => {
+                    const isChecked = selectedActivities.includes(activity.key);
+                    return (
+                      <div
+                        key={activity.key}
+                        className={`checklist-item ${isChecked ? 'checked' : ''}`}
+                        onClick={() => toggleChecklistItem(activity.key)}
+                      >
+                        <div className="checkbox-wrapper">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {}}
+                            className="checklist-checkbox"
+                          />
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div className="checklist-content">
+                          <span className="checklist-label">{activity.label}</span>
+                          {activity.description && (
+                            <span className="checklist-description">{activity.description}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
 
+              <div className="button-group" style={{ justifyContent: 'flex-end' }}>
+                <button
+                  className="submit-button next-button"
+                  onClick={() => setCurrentPage(2)}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Page 2 (or single page when no checklist): Additional Recovery + Notes */}
+          {(!showChecklist || currentPage === 2) && (
+            <div className="training-page">
               {(additionalRecoveryActivities.length > 0 || selectedActivities.some((key: string) => {
                 const activityEntry = Object.entries(RECOVERY_METRIC_CONFIG.activities.options || {})
                   .find(([optKey]) => optKey === key);
                 if (!activityEntry) return false;
                 const [_, activity] = activityEntry as [string, any];
-                return trainingComplete 
+                return trainingComplete
                   ? activity.category === 'additional'
                   : activity.category === 'both' || activity.category === 'additional';
               })) && (
@@ -291,27 +304,19 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
                   <div className="training-types-container">
                     {selectedActivities
                       .map((key: string) => {
-                        // Find the activity in all options
                         const activityEntry = Object.entries(RECOVERY_METRIC_CONFIG.activities.options || {})
                           .find(([optKey]) => optKey === key);
-                        
                         if (!activityEntry) return null;
-                        
-                        const [optKey, activity] = activityEntry as [string, any];
-                        
-                        // Only render if it's in the additional recovery category for current state
-                        const shouldRender = trainingComplete 
+                        const [_k, activity] = activityEntry as [string, any];
+                        const shouldRender = trainingComplete
                           ? activity.category === 'additional'
                           : activity.category === 'both' || activity.category === 'additional';
-                        
                         if (!shouldRender) return null;
-                        
                         const style = {
                           backgroundColor: activity.fillColor || "#567567",
                           color: activity.textColor || "#000000",
                           border: `2px solid ${activity.fillColor || "#567567"}`,
                         };
-
                         return (
                           <button
                             key={key}
@@ -326,11 +331,11 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
                       })
                       .filter(Boolean)}
                     {additionalRecoveryActivities.length > 0 && (
-                      <div 
-                        className="add-pill-wrapper" 
+                      <div
+                        className="add-pill-wrapper"
                         ref={(el) => { dropdownRefs.current['activities'] = el; }}
                       >
-                        <button 
+                        <button
                           className="add-pill-button"
                           onClick={() => toggleDropdown('activities')}
                         >
@@ -355,20 +360,6 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
                 </div>
               )}
 
-              <div className="button-group">
-                <button 
-                  className="submit-button next-button" 
-                  onClick={() => setCurrentPage(2)}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Page 2: Notes */}
-          {currentPage === 2 && (
-            <div className="training-page">
               <div className="notes-container">
                 <label className="notes-label">
                   <span>Recovery Notes</span>
@@ -382,12 +373,14 @@ export default function EditRecoveryModal({ isOpen, onClose, log, userProfile, o
                 />
               </div>
 
-              <div className="button-group">
-                <button className="back-button" onClick={() => setCurrentPage(1)}>
-                  Back
-                </button>
-                <button 
-                  className="submit-button" 
+              <div className="button-group" style={!showChecklist ? { justifyContent: 'flex-end' } : undefined}>
+                {showChecklist && (
+                  <button className="back-button" onClick={() => setCurrentPage(1)}>
+                    Back
+                  </button>
+                )}
+                <button
+                  className="submit-button"
                   onClick={handleUpdate}
                   disabled={isSubmitting}
                 >
