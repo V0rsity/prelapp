@@ -72,11 +72,11 @@ export const TRAINING_METRIC_CONFIG = {
     inputType: "dropdown" as const,
     defaultValue: 3,
     options: {
-      1: { label: "Recovery", color: "#0000FF"},
-      2: { label: "Easy", color: "#22C55E" },
-      3: { label: "Moderate", color: "#fce205" },
-      4: { label: "Difficult", color: "#F97316" },
-      5: { label: "Intense", color: "#EF4444" },
+      1: { label: "Recovery", color: "	#B28DFF"},
+      2: { label: "Easy", color: "#87CEEB" },
+      3: { label: "Moderate", color: "	#32CD32" },
+      4: { label: "Difficult", color: "#FFD700" },
+      5: { label: "Max Effort", color: "#FF5F1F" },
     }
   },
   // training_types is a text array
@@ -94,8 +94,8 @@ export const TRAINING_METRIC_CONFIG = {
       },
       distance: {
         label: "Distance",
-        fillColor: "#0000FF",
-        textColor: "#FFFFFF",
+        fillColor: "#7cc8e7",
+        textColor: "#000000",
         eventTypes: ["runner"]
       },
       sprints: {

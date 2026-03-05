@@ -590,7 +590,7 @@ export default function Trends({ dailyLogs, userProfile }: Props) {
                     onChange={e => setHabitSubtype(e.target.value)}
                     className="metric-select"
                   >
-                    <option value="">All Weights Days</option>
+                    <option value="">--</option>
                     {habitSubtypeOptions.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
