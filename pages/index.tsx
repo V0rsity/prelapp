@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import { useContext, useEffect } from "react";
@@ -128,6 +129,9 @@ export default function Landing() {
 
   return (
     <div className="landing-page">
+      <Head>
+        <meta name="theme-color" content="#384959" />
+      </Head>
       {/* ── Navbar ── */}
       <nav className="landing-navbar">
         <div className="landing-logo">
