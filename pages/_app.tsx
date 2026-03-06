@@ -1,21 +1,9 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
 import { AuthProvider } from "../context/AuthContext";
 import Head from "next/head";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (router.pathname === '/') {
-      document.documentElement.classList.add('landing');
-    } else {
-      document.documentElement.classList.remove('landing');
-    }
-  }, [router.pathname]);
-
   return (
     <AuthProvider>
       <>
