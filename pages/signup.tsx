@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { MoreVertical } from "lucide-react";
+import Image from "next/image";
 import { AIRTABLE_USERS_FIELDS as AT } from "../config/airtable";
 
 const ENGLISH_TIMEZONES = [
@@ -113,6 +113,11 @@ export default function Signup() {
     if (user) router.push("/dashboard");
   }, [user, router]);
 
+  useEffect(() => {
+    document.documentElement.classList.add('auth-bg');
+    return () => document.documentElement.classList.remove('auth-bg');
+  }, []);
+
   const showConfirmPassword = password.length > 0;
 
   const validate = (): boolean => {
@@ -187,14 +192,20 @@ export default function Signup() {
 
   return (
     <div className="dashboard-wrapper auth-page">
-      <div id="topbar">
-        <Link href="/">
-          <img src="/images/Logo-Mobile.png" alt="Prelapp" />
+      <nav className="landing-navbar">
+        <Link href="/" className="landing-logo">
+          <Image src="/images/Logo-Mobile.png" alt="Prelapp" width={40} height={40} className="landing-logo-icon" />
+          Prelapp
         </Link>
-        <button>
-          <MoreVertical size={36} />
-        </button>
-      </div>
+        <div className="landing-nav-links">
+          <Link href="/login" className="landing-nav-login">
+            Log in
+          </Link>
+          <Link href="/signup" className="landing-nav-cta">
+            Get started
+          </Link>
+        </div>
+      </nav>
 
       <div className="main-content">
         <div className="main-container">

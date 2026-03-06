@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { MoreVertical } from "lucide-react";
+import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
@@ -18,6 +18,11 @@ export default function Login() {
   useEffect(() => {
     if (user) router.push("/dashboard");
   }, [user, router]);
+
+  useEffect(() => {
+    document.documentElement.classList.add('auth-bg');
+    return () => document.documentElement.classList.remove('auth-bg');
+  }, []);
 
   const handleLogin = async () => {
     setError("");
@@ -53,14 +58,20 @@ export default function Login() {
 
   return (
     <div className="dashboard-wrapper auth-page">
-      <div id="topbar">
-        <Link href="/">
-          <img src="/images/Logo-Mobile.png" alt="Logo" />
+      <nav className="landing-navbar">
+        <Link href="/" className="landing-logo">
+          <Image src="/images/Logo-Mobile.png" alt="Prelapp" width={40} height={40} className="landing-logo-icon" />
+          Prelapp
         </Link>
-        <button>
-          <MoreVertical size={36} />
-        </button>
-      </div>
+        <div className="landing-nav-links">
+          <Link href="/login" className="landing-nav-login">
+            Log in
+          </Link>
+          <Link href="/signup" className="landing-nav-cta">
+            Get started
+          </Link>
+        </div>
+      </nav>
 
       <div className="main-content">
         <div className="main-container">

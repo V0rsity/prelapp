@@ -20,7 +20,9 @@ html, body {
 }
 
 html.landing,
-html.landing body {
+html.landing body,
+html.auth-bg,
+html.auth-bg body {
   background: #384959;
 }
 
@@ -1941,12 +1943,13 @@ html.landing body {
    =================================== */
 
 .dashboard-wrapper.auth-page {
-  min-height: unset;
-  padding-bottom: 2rem;
+  min-height: 100vh;
+  background-color: #BDDDFC;
 }
-
 .auth-page .main-content {
-  margin: 0 auto;
+  margin: auto;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .auth-form {
@@ -2460,6 +2463,10 @@ html.landing body {
 }
 
 /* ── Navbar ── */
+.auth-page .landing-navbar {
+  position: static;
+}
+
 .landing-navbar {
   position: fixed;
   top: 0;
@@ -2480,6 +2487,7 @@ html.landing body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
   font-family: 'Barlow Condensed', Arial, sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
