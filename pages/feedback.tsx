@@ -20,12 +20,6 @@ export default function Feedback() {
   const [submitError, setSubmitError] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
     if (!user) return;
     const cached = sessionStorage.getItem('userProfile');
     if (cached) {
