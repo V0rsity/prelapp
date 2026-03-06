@@ -15,8 +15,13 @@ html, body {
   min-height: 100%;
   overflow-x: hidden;
   font-family: Arial, Helvetica, sans-serif;
-  background: #384959;
+  background: #BDDDFC;
   overflow-y: auto;
+}
+
+html.landing,
+html.landing body {
+  background: #384959;
 }
 
 
