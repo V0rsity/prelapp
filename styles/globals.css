@@ -1948,8 +1948,7 @@ html.auth-bg body {
 }
 .auth-page .main-content {
   margin: auto;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+  padding-top: calc(1.5rem + 60px);
 }
 
 .auth-form {
@@ -2464,7 +2463,7 @@ html.auth-bg body {
 
 /* ── Navbar ── */
 .auth-page .landing-navbar {
-  position: static;
+  background: #384959;
 }
 
 .landing-navbar {
