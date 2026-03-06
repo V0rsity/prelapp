@@ -57,7 +57,7 @@ export default function Login() {
   };
 
   return (
-    <div className="dashboard-wrapper auth-page">
+    <div className="dashboard-wrapper auth-page login-screen">
       <nav className="landing-navbar">
         <Link href="/" className="landing-logo">
           <Image src="/images/Logo-Mobile.png" alt="Prelapp" width={40} height={40} className="landing-logo-icon" />

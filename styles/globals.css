@@ -1950,6 +1950,9 @@ html.auth-bg body {
   margin: auto;
   padding-top: calc(1.5rem + 60px);
 }
+.auth-page.login-screen .main-content{
+  padding-top: calc(6rem + 60px);
+}
 
 .auth-form {
   padding: 0 1.25rem 1.25rem;
