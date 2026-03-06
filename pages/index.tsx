@@ -102,11 +102,6 @@ export default function Landing() {
   const router = useRouter();
 
   useEffect(() => {
-    document.documentElement.classList.add('landing');
-    return () => document.documentElement.classList.remove('landing');
-  }, []);
-
-  useEffect(() => {
     if (!loading && user) {
       router.replace("/dashboard");
     }
