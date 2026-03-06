@@ -15,7 +15,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           {/* PWA Meta */}
           <link rel="manifest" href="/manifest.json" />
           <link rel="icon" href="/icons/icon-192x192.png" />
-          <meta name="theme-color" content="#BDDDFC" />
+          <meta name="theme-color" content="#BDDDFC" key="theme-color" />
           <meta name="description" content="Track your readiness metrics and Strava runs." />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
 

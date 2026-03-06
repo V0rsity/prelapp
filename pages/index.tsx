@@ -130,7 +130,8 @@ export default function Landing() {
   return (
     <div className="landing-page">
       <Head>
-        <meta name="theme-color" content="#384959" />
+        <meta name="theme-color" content="#384959" key="theme-color" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" key="apple-status-bar" />
       </Head>
       {/* ── Navbar ── */}
       <nav className="landing-navbar">
