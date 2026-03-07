@@ -114,14 +114,6 @@ export default function Landing() {
 
   useEffect(() => {
     if (loading || user) return;
-    const isPwa =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (navigator as any).standalone === true;
-    if (isPwa) router.replace('/login');
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (loading || user) return;
 
     const observer = new IntersectionObserver(
       (entries) => {

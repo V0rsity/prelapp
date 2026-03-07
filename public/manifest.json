@@ -2,7 +2,7 @@
   "name": "Prelapp",
   "short_name": "Prelapp",
   "description": "Track your readiness to make data-backed training decisions.",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#384959",
   "theme_color": "#384959",
