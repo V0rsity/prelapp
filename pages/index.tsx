@@ -136,8 +136,10 @@ export default function Landing() {
       {/* ── Navbar ── */}
       <nav className="landing-navbar">
         <div className="landing-logo">
-          <Image src="/images/Logo-Mobile.png" alt="Prelapp" width={40} height={40} className="landing-logo-icon" />
-          Prelapp
+          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ display: 'flex', alignItems: 'center', gap: 'inherit', textDecoration: 'none', color: 'inherit' }}>
+            <Image src="/images/Logo-Mobile.png" alt="Prelapp" width={40} height={40} className="landing-logo-icon" />
+            Prelapp
+          </a>
         </div>
         <div className="landing-nav-links">
           <Link href="/login" className="landing-nav-login">
@@ -214,7 +216,7 @@ export default function Landing() {
             </div>
           </div>
         </div>
-        <a href="#features" className="hero-scroll-indicator" aria-label="Scroll to features">
+        <a href="#features" className="hero-scroll-indicator" aria-label="Scroll to features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}>
           <ChevronDown size={28} color="rgba(255,255,255,0.45)" />
         </a>
       </section>
