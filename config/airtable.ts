@@ -20,3 +20,10 @@ export const AIRTABLE_FEEDBACK_FIELDS = {
   user:        'fld04gcuLDp3K9gz6',
   feedback_type: 'fldCOhhouBcKjxXQa',
 } as const;
+
+export const AIRTABLE_HELP_FIELDS = {
+  name:        'fldsZdt19kMlZUZJK',
+  email:       'fldEyaZppB0g5Z6HD',
+  message:     'fldNKRBbGwWRLJ4A4',
+  supabaseId:  'flduqa6N6ZaxQERkr',
+} as const;

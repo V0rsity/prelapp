@@ -1,16 +1,14 @@
 // pages/feedback.tsx
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { MoreVertical } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { UserProfile } from '@/types/models';
+import TopBar from '../components/TopBar';
 
 export default function Feedback() {
   const { user, loading } = useContext(AuthContext);
   const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,23 +39,6 @@ export default function Feedback() {
       });
   }, [user]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
-
-  const handleLogout = async () => {
-    sessionStorage.removeItem('userProfile');
-    sessionStorage.removeItem('dailyLogs');
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -80,27 +61,8 @@ export default function Feedback() {
   if (loading) return null;
 
   return (
-    <div className="dashboard-wrapper auth-page">
-      <div id="topbar">
-        <img
-          src="/images/Logo-Mobile.png"
-          alt="Logo"
-          style={{ cursor: 'pointer' }}
-          onClick={() => router.push('/dashboard')}
-        />
-        <div className="menu-container" ref={menuRef}>
-          <button onClick={() => setShowMenu(!showMenu)}>
-            <MoreVertical size={36} />
-          </button>
-          {showMenu && (
-            <div className="popup-menu">
-              <button onClick={handleLogout}><p>Logout</p></button>
-              <button onClick={() => router.push('/settings')}><p>Settings</p></button>
-              <button onClick={() => router.push('/dashboard')}><p>Dashboard</p></button>
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="dashboard-wrapper additional-page">
+      <TopBar currentPage="feedback" />
 
       <div className="main-content">
         <div className="main-container">

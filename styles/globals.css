@@ -55,7 +55,7 @@ html.auth-bg body {
   padding-bottom: 80px;
   margin: 0;
   width: 100%;
-  min-height: 120vh;
+  min-height: 100vh;
 }
 
 /* Dashboard Mobile Layout */
@@ -1936,6 +1936,10 @@ html.auth-bg body {
 .recovery-checklist-display-item input.checklist-checkbox {
   cursor: default;
   pointer-events: none;
+}
+
+.additional-page .main-content {
+  margin: auto;
 }
 
 /* ===================================

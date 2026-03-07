@@ -2,7 +2,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { MoreVertical } from 'lucide-react';
+import TopBar from '../components/TopBar';
 import { AuthContext } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { UserProfile } from '@/types/models';
@@ -486,9 +486,6 @@ export default function Settings() {
   const [showTimezoneModal, setShowTimezoneModal] = useState(false);
   const [showProfilesModal, setShowProfilesModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!loading && !user) {
       router.push('/');
@@ -523,23 +520,6 @@ export default function Settings() {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu]);
-
-  const handleLogout = async () => {
-    sessionStorage.removeItem('userProfile');
-    sessionStorage.removeItem('dailyLogs');
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
   const handleProfileUpdate = (updates: Partial<UserProfile>) => {
     const updated = { ...userProfile, ...updates } as UserProfile;
     setUserProfile(updated);
@@ -549,22 +529,8 @@ export default function Settings() {
   const anyModalOpen = showNameModal || showTimezoneModal || showProfilesModal || showDeleteModal;
 
   return (
-    <div className={`settings dashboard-wrapper auth-page${anyModalOpen ? ' modal-active' : ''}`}>
-      <div id="topbar">
-        <img src="/images/Logo-Mobile.png" alt="Logo" style={{ cursor: 'pointer' }} onClick={() => router.push('/dashboard')} />
-        <div className="menu-container" ref={menuRef}>
-          <button onClick={() => setShowMenu(!showMenu)}>
-            <MoreVertical size={36} />
-          </button>
-          {showMenu && (
-            <div className="popup-menu">
-              <button onClick={handleLogout}><p>Logout</p></button>
-              <button><p>Help & FAQ</p></button>
-              <button onClick={() => router.push('/feedback')}><p>Feedback</p></button>
-            </div>
-          )}
-        </div>
-      </div>
+    <div className={`settings dashboard-wrapper additional-page${anyModalOpen ? ' modal-active' : ''}`}>
+      <TopBar currentPage="settings" />
 
       {dataLoading ? (
         <div className="loading-content" />

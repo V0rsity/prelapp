@@ -1,9 +1,10 @@
 // pages/dashboard.tsx
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { AuthContext } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { MoreVertical, Clock, Zap, TrendingUp, RefreshCw } from "lucide-react";
+import { Clock, Zap, TrendingUp } from "lucide-react";
+import TopBar from "../components/TopBar";
 import { DailyLog, UserProfile } from '@/types/models';
 
 // Import components
@@ -15,8 +16,6 @@ import ProfileSelectionModal from "../components/dashboard/ProfileSelectionModal
 export default function Dashboard() {
   const { user, loading } = useContext(AuthContext);
   const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("readiness");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
@@ -103,19 +102,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      // Clear sessionStorage on logout
-      sessionStorage.removeItem('userProfile');
-      sessionStorage.removeItem('dailyLogs');
-      
-      await supabase.auth.signOut();
-      router.push("/");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
-
   // Use only for refresh with supabase! Call fetchUserData() for normal data retrieval.
   const refreshUserData = async () => {
     try {
@@ -126,22 +112,6 @@ export default function Dashboard() {
       console.error("Refresh failed:", err);
     }
   }
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showMenu]);
-
-  const toggleMenu = () => {
-    setShowMenu(!showMenu);
-  };
 
   // Incredibly important when sessionStorage is updated in one of the other tabs!
   const handleTabSwitch = (tab: string) => {
@@ -191,27 +161,7 @@ export default function Dashboard() {
           onComplete={handleProfileComplete}
         />
       )}
-      {/* Top Bar */}
-      <div id="topbar">
-        <img src="/images/Logo-Mobile.png" alt="Logo"/>
-        <div className="menu-container" ref={menuRef}>
-          <button onClick={refreshUserData}>
-            <RefreshCw size={34} />
-          </button>
-          <button onClick={toggleMenu}>
-            <MoreVertical size={36} />
-          </button>
-          
-          {showMenu && (
-            <div className="popup-menu">
-              <button onClick={handleLogout}><p>Logout</p></button>
-              <button onClick={() => router.push('/settings')}><p>Settings</p></button>
-              <button><p>Help & FAQ</p></button>
-              <button onClick={() => router.push('/feedback')}><p>Feedback</p></button>
-            </div>
-          )}
-        </div>
-      </div>
+      <TopBar currentPage="dashboard" onRefresh={refreshUserData} />
       
       <div className="desktop-wrapper">
         {/* Left Navigation Button */}
