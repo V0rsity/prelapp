@@ -29,6 +29,14 @@ Prelapp is a readiness and recovery tracking app for Track & Field athletes. Eve
 
 This file manages all the metrics in one place. All the pages are calculated based off what metrics are included in here. This means that new metric requests can be handled efficiently to ensure that the app is effective for all event types. This is usefule as I am not familiar with all track events so I can not accurately determine what every athlete would want to track for v1.
 
+## Creating the UI
+
+- Mobile first design, intended to be used on a phone
+- The UI within the app was designed by me through Figma
+- Utilized the Figma MCP to translate that UI into code
+- Decided the color scheme before designing the app
+- Developed the logo in Canva and had ChatGPT modernize it
+
 ## Airtable CRM
 
 - Track who is using the app and what Track events they do
