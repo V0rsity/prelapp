@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prelapp
 
-## Getting Started
+## About
 
-First, run the development server:
+Prelapp is a readiness and recovery tracking app for Track & Field athletes. Every day before practice, athletes record how they feel in terms of energy and soreness. They additionally record the intensity of their workouts and their recovery activities.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Why this matters
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Athletes tend to forget their training and soreness within a couple weeks, so it is difficult to find trends
+- Athletes will understand how their training affects how they feel on race day and can see improvements over time
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### How Prelapp can find trends
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 30 day metric tracker with a built-in trendline
+- Compare different metrics on the same graph to see how they correlate to each other
+- 30 day habit tracker to effectively see when training or recovery gets missed
+- Calculated readiness scores that rollup all metrics into one number
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 16 (Pages Router), React 19, TypeScript 5
+- **Database/Auth**: Supabase (PostgreSQL + auth)
+- **Styling**: Tailwind CSS v4 + global CSS (`styles/globals.css`) with CSS custom properties for theme colors
+- **Charts**: Recharts
+- **Icons**: Lucide React
+- **PWA**: Standalone manifest at `/public/manifest.json`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## config/metrics.ts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This file manages all the metrics in one place. All the pages are calculated based off what metrics are included in here. This means that new metric requests can be handled efficiently to ensure that the app is effective for all event types. This is usefule as I am not familiar with all track events so I can not accurately determine what every athlete would want to track for v1.
 
-## Deploy on Vercel
+## Airtable CRM
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Track who is using the app and what Track events they do
+- Record metric requests so they can be easily implemented into the app.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Where is Prelapp today?
+
+Prelapp did not have enough interest or support for a full rollout:
+- It did to expedite any processes, it potentially slowed them down
+- It was not perceived as necessary for Track & Field performance
+- I found it difficult to implement into my own routine
+
+### Why Prelapp still matters in my journey
+
+- I gained experience in Supabase
+- I learned how to create PWAs and discovered their pros and cons
+- I explored how to make an app be calculated based off 1 easily configureable file
+- I learned to identify a problem before building, rather than trying to identify the problem later
